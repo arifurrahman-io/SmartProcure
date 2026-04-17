@@ -1,0 +1,15 @@
+export const URGENCY_LEVELS = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+  EMERGENCY: "Emergency",
+};
+
+export const URGENCY_LEVEL_LIST = [
+  URGENCY_LEVELS.LOW,
+  URGENCY_LEVELS.MEDIUM,
+  URGENCY_LEVELS.HIGH,
+  URGENCY_LEVELS.EMERGENCY,
+];
+
+export default URGENCY_LEVELS;
