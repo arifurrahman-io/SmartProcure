@@ -9,6 +9,8 @@ export default function AppInput({
   secureTextEntry = false,
   multiline = false,
   keyboardType = "default",
+  autoCapitalize = "sentences",
+  autoCorrect = true,
 }) {
   return (
     <View style={styles.wrapper}>
@@ -21,6 +23,8 @@ export default function AppInput({
         secureTextEntry={secureTextEntry}
         multiline={multiline}
         keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={autoCorrect}
         style={[styles.input, multiline && styles.multiline]}
         placeholderTextColor="#94A3B8"
       />

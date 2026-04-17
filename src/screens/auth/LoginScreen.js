@@ -6,38 +6,79 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppInput from "../../components/common/AppInput";
 import AppButton from "../../components/common/AppButton";
 
+import { loginUser } from "../../services/auth/authService";
+import { validateLoginForm } from "../../utils/validators";
+import { getFirebaseFriendlyError } from "../../utils/errorHandler";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import useUiStore from "../../store/useUiStore";
+
 export default function LoginScreen({ navigation }) {
+  const setGlobalLoading = useUiStore((state) => state.setGlobalLoading);
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
   };
 
   const handleLogin = async () => {
+    Keyboard.dismiss();
+
+    const trimmedForm = {
+      email: form.email.trim(),
+      password: form.password,
+    };
+
+    const validationErrors = validateLoginForm(trimmedForm);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      showErrorToast("Validation Error", Object.values(validationErrors)[0]);
+      return;
+    }
+
     try {
       setLoading(true);
+      setGlobalLoading(true);
+      setErrors({});
 
-      // TODO: Firebase login logic here
-      console.log("Login data:", form);
+      await loginUser(trimmedForm);
 
-      // Example navigation after login
-      // navigation.replace("MainTabs");
+      showSuccessToast("Login Successful", "Welcome back to SmartProcure");
+
+      // Navigation manually করার দরকার নেই যদি AppNavigator auth store / auth listener observe করে
+      // AuthProvider + AppNavigator automatic redirect handle করবে
     } catch (error) {
-      console.log("Login error:", error);
+      const message = getFirebaseFriendlyError(error);
+      showErrorToast("Login Failed", message);
     } finally {
       setLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -49,6 +90,10 @@ export default function LoginScreen({ navigation }) {
       >
         <View style={styles.container}>
           <View style={styles.topSection}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoText}>SP</Text>
+            </View>
+
             <Text style={styles.welcome}>Welcome Back</Text>
             <Text style={styles.subtitle}>
               Login to manage purchase requests, quotations, approvals, and
@@ -63,20 +108,46 @@ export default function LoginScreen({ navigation }) {
               value={form.email}
               onChangeText={(text) => handleChange("email", text)}
               keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
+            {errors.email ? (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            ) : null}
 
-            <AppInput
-              label="Password"
-              placeholder="Enter your password"
-              value={form.password}
-              onChangeText={(text) => handleChange("password", text)}
-              secureTextEntry
-            />
+            <View style={styles.passwordWrap}>
+              <AppInput
+                label="Password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChangeText={(text) => handleChange("password", text)}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword((prev) => !prev)}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#64748B"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {errors.password ? (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            ) : null}
 
             <TouchableOpacity
               style={styles.forgotWrap}
               onPress={() => navigation.navigate("ForgotPassword")}
               activeOpacity={0.8}
+              disabled={loading}
             >
               <Text style={styles.forgotText}>Forgot Password?</Text>
             </TouchableOpacity>
@@ -110,17 +181,34 @@ const styles = StyleSheet.create({
   },
   topSection: {
     marginBottom: 28,
+    alignItems: "center",
+  },
+  logoCircle: {
+    width: 74,
+    height: 74,
+    borderRadius: 999,
+    backgroundColor: "#4F46E5",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
+  },
+  logoText: {
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "800",
   },
   welcome: {
     fontSize: 30,
     fontWeight: "800",
     color: "#0F172A",
+    textAlign: "center",
   },
   subtitle: {
     marginTop: 10,
     fontSize: 14,
     lineHeight: 22,
     color: "#64748B",
+    textAlign: "center",
   },
   formCard: {
     backgroundColor: "#FFFFFF",
@@ -133,6 +221,23 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
+  },
+  passwordWrap: {
+    position: "relative",
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 14,
+    top: 40,
+    zIndex: 10,
+    padding: 4,
+  },
+  errorText: {
+    marginTop: -8,
+    marginBottom: 10,
+    fontSize: 12,
+    color: "#DC2626",
+    fontWeight: "600",
   },
   forgotWrap: {
     alignSelf: "flex-end",
