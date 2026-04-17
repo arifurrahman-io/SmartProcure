@@ -14,10 +14,7 @@ import useQuotations from "../../hooks/useQuotations";
 import useUserRole from "../../hooks/useUserRole";
 import ROUTES from "../../navigation/routes";
 import { formatCurrency } from "../../utils/formatCurrency";
-import {
-  getFirebaseFriendlyError,
-  getErrorMessage,
-} from "../../utils/errorHandler";
+import { getErrorMessage } from "../../utils/errorHandler";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 export default function QuotationComparisonScreen({ navigation, route }) {
@@ -83,11 +80,10 @@ export default function QuotationComparisonScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch (error) {
-      const message =
-        getFirebaseFriendlyError(error) ||
-        getErrorMessage(error, "Failed to approve quotation");
-
-      showErrorToast("Approval Failed", message);
+      showErrorToast(
+        "Approval Failed",
+        getErrorMessage(error, "Failed to approve quotation"),
+      );
     } finally {
       setApproving(false);
     }

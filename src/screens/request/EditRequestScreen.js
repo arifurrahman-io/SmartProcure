@@ -10,10 +10,7 @@ import EmptyState from "../../components/common/EmptyState";
 
 import useRequestDetails from "../../hooks/useRequestDetails";
 import { validateRequestForm } from "../../utils/validators";
-import {
-  getFirebaseFriendlyError,
-  getErrorMessage,
-} from "../../utils/errorHandler";
+import { getErrorMessage } from "../../utils/errorHandler";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
 import {
   createFormChangeHandler,
@@ -85,11 +82,10 @@ export default function EditRequestScreen({ navigation, route }) {
       );
       navigation.goBack();
     } catch (err) {
-      const friendlyMessage =
-        getFirebaseFriendlyError(err) ||
-        getErrorMessage(err, "Failed to update request");
-
-      showErrorToast("Update Failed", friendlyMessage);
+      showErrorToast(
+        "Update Failed",
+        getErrorMessage(err, "Failed to update request"),
+      );
     } finally {
       setSaving(false);
     }

@@ -10,12 +10,14 @@ import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import AppInput from "../../components/common/AppInput";
 import AppButton from "../../components/common/AppButton";
-import { resetUserPassword } from "../../services/auth/authService";
+import useAuth from "../../hooks/useAuth";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const { resetPassword } = useAuth();
 
   const handleResetPassword = async () => {
     const safeEmail = email.trim();
@@ -28,7 +30,7 @@ export default function ForgotPasswordScreen({ navigation }) {
     try {
       setLoading(true);
 
-      await resetUserPassword(safeEmail);
+      await resetPassword(safeEmail);
       showSuccessToast("Reset Link Sent", "Check your email inbox");
 
       navigation.goBack();
@@ -36,7 +38,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       console.log("Reset error:", error);
       showErrorToast(
         "Reset Failed",
-        error?.message || "Unable to send password reset email",
+        getErrorMessage(error, "Unable to send password reset email"),
       );
     } finally {
       setLoading(false);

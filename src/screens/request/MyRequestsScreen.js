@@ -11,13 +11,14 @@ import ROUTES from "../../navigation/routes";
 import useAuth from "../../hooks/useAuth";
 import useRequests from "../../hooks/useRequests";
 import { formatDate } from "../../utils/formatDate";
+import { getRequestAuthor } from "../../utils/requestHelpers";
 
 export default function MyRequestsScreen({ navigation }) {
   const { profile, isLoading: authLoading } = useAuth();
   const {
     requests,
     isLoading: requestsLoading,
-    fetchRequests,
+    refreshRequests,
   } = useRequests(true);
 
   const isLoading = authLoading || requestsLoading;
@@ -30,32 +31,30 @@ export default function MyRequestsScreen({ navigation }) {
 
     return requests
       .filter((item) => {
-        const createdBy = item?.createdBy || item?.submittedById || null;
-        const itemEmail = String(
-          item?.requesterEmail || item?.email || "",
-        ).toLowerCase();
+        const author = getRequestAuthor(item, "");
+        const itemEmail = String(author.email || "").toLowerCase();
 
         return (
-          (currentUserId && createdBy === currentUserId) ||
+          (currentUserId && author.id === currentUserId) ||
           (currentEmail && itemEmail === currentEmail)
         );
       })
-      .map((item) => ({
-        id: item.id,
-        itemName: item.itemName || item.title || "Untitled Request",
-        category: item.category || "Uncategorized",
-        campus: item.campus || "-",
-        shift: item.shift || "-",
-        requester:
-          item.requester ||
-          item.requesterName ||
-          profile?.name ||
-          "Current User",
-        date: formatDate(item.createdAt),
-        status: item.status || "Pending",
-        urgency: item.urgency || "Medium",
-        quotationCount: item.quotationCount || 0,
-      }));
+      .map((item) => {
+        const author = getRequestAuthor(item, profile?.name || "Current User");
+
+        return {
+          id: item.id,
+          itemName: item.itemName || item.title || "Untitled Request",
+          category: item.category || "Uncategorized",
+          campus: item.campus || "-",
+          shift: item.shift || "-",
+          requester: author.name,
+          date: formatDate(item.createdAt),
+          status: item.status || "Pending",
+          urgency: item.urgency || "Medium",
+          quotationCount: item.quotationCount || 0,
+        };
+      });
   }, [profile, requests]);
 
   if (isLoading && (!requests || requests.length === 0)) {
@@ -75,7 +74,7 @@ export default function MyRequestsScreen({ navigation }) {
         data={myRequests}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        onRefresh={fetchRequests}
+        onRefresh={refreshRequests}
         refreshing={isLoading}
         renderItem={({ item }) => (
           <RequestCard

@@ -32,9 +32,9 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!isAuthenticated ? (
-        <Stack.Screen name="AuthRoot" component={AuthNavigator} />
+        <Stack.Screen name={ROUTES.AUTH_ROOT} component={AuthNavigator} />
       ) : isAdmin ? (
-        <Stack.Screen name="AdminRoot" component={AdminStackNavigator} />
+        <Stack.Screen name={ROUTES.ADMIN_ROOT} component={AdminStackNavigator} />
       ) : (
         <Stack.Screen name={ROUTES.MAIN_TABS} component={MainTabNavigator} />
       )}

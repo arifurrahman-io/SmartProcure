@@ -32,7 +32,7 @@ export default function DashboardScreen({ navigation }) {
   const {
     requests,
     isLoading: requestsLoading,
-    fetchRequests,
+    refreshRequests,
   } = useRequests(true);
 
   const isLoading = statsLoading || requestsLoading;
@@ -73,7 +73,7 @@ export default function DashboardScreen({ navigation }) {
   }, [requests]);
 
   const handleRefresh = async () => {
-    await Promise.all([fetchDashboardStats(), fetchRequests()]);
+    await Promise.all([fetchDashboardStats(), refreshRequests()]);
   };
 
   if (isLoading && (!requests || requests.length === 0)) {

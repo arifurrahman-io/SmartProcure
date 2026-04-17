@@ -3,7 +3,6 @@ import {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
-  onIdTokenChanged,
   updateProfile,
   updatePassword,
   sendEmailVerification,
@@ -43,10 +42,6 @@ export const logoutUser = async () => {
 
 export const subscribeToAuthChanges = (callback) => {
   return onAuthStateChanged(auth, callback);
-};
-
-export const subscribeToIdTokenChanges = (callback) => {
-  return onIdTokenChanged(auth, callback);
 };
 
 export const getCurrentUser = () => {

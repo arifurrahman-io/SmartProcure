@@ -2,6 +2,21 @@ export const countRequestQuotations = (quotations = [], requestId) => {
   return quotations.filter((item) => item.requestId === requestId).length;
 };
 
+export const getRequestAuthor = (request = {}, fallbackName = "Unknown") => {
+  const source = request || {};
+
+  return {
+    id: source.authorId || source.createdBy || source.submittedById || null,
+    name:
+      source.authorName ||
+      source.requesterName ||
+      source.requester ||
+      source.createdByName ||
+      fallbackName,
+    email: source.authorEmail || source.requesterEmail || source.email || "",
+  };
+};
+
 export const filterRequests = (requests = [], filters = {}) => {
   const {
     search = "",
@@ -41,6 +56,7 @@ export const sortRequestsByDateDesc = (requests = []) => {
 
 export default {
   countRequestQuotations,
+  getRequestAuthor,
   filterRequests,
   sortRequestsByDateDesc,
 };

@@ -13,10 +13,7 @@ import {
   createFormChangeHandler,
   getTrimmedFormValues,
 } from "../../utils/formHelpers";
-import {
-  getFirebaseFriendlyError,
-  getErrorMessage,
-} from "../../utils/errorHandler";
+import { getErrorMessage } from "../../utils/errorHandler";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const INITIAL_FORM = {
@@ -78,11 +75,10 @@ export default function SubmitQuotationScreen({ navigation, route }) {
         requestId,
       });
     } catch (error) {
-      const message =
-        getFirebaseFriendlyError(error) ||
-        getErrorMessage(error, "Failed to submit quotation");
-
-      showErrorToast("Submit Failed", message);
+      showErrorToast(
+        "Submit Failed",
+        getErrorMessage(error, "Failed to submit quotation"),
+      );
     } finally {
       setSaving(false);
     }

@@ -12,29 +12,32 @@ import RequestCard from "../../components/request/RequestCard";
 import ROUTES from "../../navigation/routes";
 import useRequests from "../../hooks/useRequests";
 import useDebounce from "../../hooks/useDebounce";
-import { filterRequests } from "../../utils/requestHelpers";
+import { filterRequests, getRequestAuthor } from "../../utils/requestHelpers";
 import { formatDate } from "../../utils/formatDate";
 
 export default function RequestListScreen({ navigation }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
 
-  const { requests, isLoading, fetchRequests } = useRequests(true);
+  const { requests, isLoading, refreshRequests } = useRequests(true);
 
   const mappedRequests = useMemo(() => {
-    return (requests || []).map((item) => ({
-      id: item.id,
-      itemName: item.itemName || item.title || "Untitled Request",
-      category: item.category || "Uncategorized",
-      campus: item.campus || "-",
-      shift: item.shift || "-",
-      requester:
-        item.requester || item.requesterName || item.createdByName || "Unknown",
-      date: formatDate(item.createdAt),
-      status: item.status || "Pending",
-      urgency: item.urgency || "Medium",
-      quotationCount: item.quotationCount || 0,
-    }));
+    return (requests || []).map((item) => {
+      const author = getRequestAuthor(item);
+
+      return {
+        id: item.id,
+        itemName: item.itemName || item.title || "Untitled Request",
+        category: item.category || "Uncategorized",
+        campus: item.campus || "-",
+        shift: item.shift || "-",
+        requester: author.name,
+        date: formatDate(item.createdAt),
+        status: item.status || "Pending",
+        urgency: item.urgency || "Medium",
+        quotationCount: item.quotationCount || 0,
+      };
+    });
   }, [requests]);
 
   const filteredRequests = useMemo(() => {
@@ -78,7 +81,7 @@ export default function RequestListScreen({ navigation }) {
         data={filteredRequests}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        onRefresh={fetchRequests}
+        onRefresh={refreshRequests}
         refreshing={isLoading}
         renderItem={({ item }) => (
           <RequestCard

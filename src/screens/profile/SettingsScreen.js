@@ -8,7 +8,7 @@ import ROUTES from "../../navigation/routes";
 import useUiStore from "../../store/useUiStore";
 import useAppTheme from "../../hooks/useAppTheme";
 import useAuth from "../../hooks/useAuth";
-import { resetUserPassword } from "../../services/auth/authService";
+import { getErrorMessage } from "../../utils/errorHandler";
 import {
   showErrorToast,
   showInfoToast,
@@ -26,7 +26,7 @@ export default function SettingsScreen({ navigation }) {
   } = useUiStore();
 
   const { isDark } = useAppTheme();
-  const { profile } = useAuth();
+  const { profile, resetPassword } = useAuth();
 
   // =========================
   // Handlers
@@ -61,12 +61,12 @@ export default function SettingsScreen({ navigation }) {
     }
 
     try {
-      await resetUserPassword(email);
+      await resetPassword(email);
       showSuccessToast("Reset Link Sent", "Check your email inbox");
     } catch (error) {
       showErrorToast(
         "Reset Failed",
-        error?.message || "Unable to send password reset email",
+        getErrorMessage(error, "Unable to send password reset email"),
       );
     }
   };

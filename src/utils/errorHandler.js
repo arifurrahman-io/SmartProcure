@@ -1,49 +1,35 @@
-export const getErrorMessage = (error, fallback = "Something went wrong") => {
-  if (!error) return fallback;
-
-  if (typeof error === "string") return error;
-
-  if (error.message) return error.message;
-
-  return fallback;
+const FIREBASE_ERROR_MESSAGES = {
+  "auth/invalid-email": "Invalid email address",
+  "auth/user-not-found": "No user found with this email",
+  "auth/wrong-password": "Incorrect password",
+  "auth/invalid-credential": "Invalid login credentials",
+  "auth/too-many-requests": "Too many attempts. Try again later",
+  "permission-denied": "Permission denied. Please check your access",
+  unavailable: "Service is temporarily unavailable",
+  "failed-precondition":
+    "Firestore needs an index for this query. Deploy firestore.indexes.json.",
 };
 
-export const getFirebaseFriendlyError = (error) => {
-  const code = error?.code || "";
+export const getErrorMessage = (error, fallback = "Something went wrong") => {
+  if (!error) return fallback;
+  if (typeof error === "string") return error;
 
-  switch (code) {
-    case "auth/invalid-email":
-      return "Invalid email address";
-    case "auth/user-not-found":
-      return "No user found with this email";
-    case "auth/wrong-password":
-      return "Incorrect password";
-    case "auth/invalid-credential":
-      return "Invalid login credentials";
-    case "auth/too-many-requests":
-      return "Too many attempts. Try again later";
-    case "permission-denied":
-      return "Permission denied. Please check your access";
-    case "unavailable":
-      return "Service is temporarily unavailable";
-    default:
-      return error?.message || "Something went wrong";
-  }
+  const codeMessage = FIREBASE_ERROR_MESSAGES[error.code];
+  if (codeMessage) return codeMessage;
+
+  return error.message || fallback;
 };
 
 export const withErrorBoundary = async (fn, onError) => {
   try {
     return await fn();
   } catch (error) {
-    if (onError) {
-      onError(error);
-    }
+    onError?.(error);
     throw error;
   }
 };
 
 export default {
   getErrorMessage,
-  getFirebaseFriendlyError,
   withErrorBoundary,
 };

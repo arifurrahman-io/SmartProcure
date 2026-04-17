@@ -29,7 +29,7 @@ export default function ReportsScreen({ navigation }) {
   const {
     requests,
     isLoading: requestsLoading,
-    fetchRequests,
+    refreshRequests,
   } = useRequests(true);
 
   const {
@@ -43,7 +43,7 @@ export default function ReportsScreen({ navigation }) {
   const handleRefresh = async () => {
     await Promise.all([
       fetchDashboardStats(),
-      fetchRequests(),
+      refreshRequests(),
       fetchInstructions(),
     ]);
   };

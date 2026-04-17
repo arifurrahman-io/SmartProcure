@@ -51,7 +51,7 @@ export const getRequestsByUser = async (userId) => {
   const ref = collection(db, COLLECTIONS.REQUESTS);
   const q = query(
     ref,
-    where("createdBy", "==", userId),
+    where("authorId", "==", userId),
     orderBy("createdAt", "desc"),
   );
   const snapshot = await getDocs(q);

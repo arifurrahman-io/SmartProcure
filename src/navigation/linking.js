@@ -5,7 +5,7 @@ const linking = {
   config: {
     screens: {
       [ROUTES.LOADING]: "loading",
-      AuthRoot: {
+      [ROUTES.AUTH_ROOT]: {
         screens: {
           [ROUTES.LOGIN]: "login",
           [ROUTES.FORGOT_PASSWORD]: "forgot-password",
@@ -35,7 +35,7 @@ const linking = {
         },
       },
 
-      AdminRoot: {
+      [ROUTES.ADMIN_ROOT]: {
         screens: {
           [ROUTES.ADMIN_DASHBOARD]: "admin",
           [ROUTES.PENDING_APPROVALS]: "admin/pending-approvals",

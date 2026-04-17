@@ -15,6 +15,7 @@ export default function useRequests(autoLoad = true) {
     setIsLoading,
     setError,
     addRequest,
+    resetRequests,
   } = useRequestStore();
 
   const profile = useAuthStore((state) => state.profile);
@@ -34,6 +35,11 @@ export default function useRequests(autoLoad = true) {
     }
   }, [setRequests, setIsLoading, setError]);
 
+  const refreshRequests = useCallback(async () => {
+    resetRequests();
+    await fetchRequests();
+  }, [fetchRequests, resetRequests]);
+
   const submitRequest = useCallback(
     async (payload) => {
       try {
@@ -42,9 +48,9 @@ export default function useRequests(autoLoad = true) {
 
         const requestPayload = {
           ...payload,
-          createdBy: profile?.id || profile?.uid || null,
-          requesterName: profile?.name || "Unknown User",
-          requesterEmail: profile?.email || "",
+          authorId: profile?.id || profile?.uid || null,
+          authorName: profile?.name || profile?.displayName || "Unknown User",
+          authorEmail: profile?.email || "",
           status: payload.status || "Pending",
         };
 
@@ -79,6 +85,7 @@ export default function useRequests(autoLoad = true) {
     isLoading,
     error,
     fetchRequests,
+    refreshRequests,
     submitRequest,
   };
 }

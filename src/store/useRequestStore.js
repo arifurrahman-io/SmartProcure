@@ -10,6 +10,7 @@ const useRequestStore = create((set) => ({
   setSelectedRequest: (selectedRequest) => set({ selectedRequest }),
   setIsLoading: (value) => set({ isLoading: value }),
   setError: (error) => set({ error }),
+  resetRequests: () => set({ requests: [], selectedRequest: null, error: null }),
 
   addRequest: (request) =>
     set((state) => ({

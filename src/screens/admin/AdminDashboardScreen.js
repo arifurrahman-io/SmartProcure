@@ -33,7 +33,7 @@ export default function AdminDashboardScreen({ navigation }) {
   const {
     requests,
     isLoading: requestsLoading,
-    fetchRequests,
+    refreshRequests,
   } = useRequests(true);
 
   const isLoading = statsLoading || requestsLoading;
@@ -56,7 +56,7 @@ export default function AdminDashboardScreen({ navigation }) {
   }, [requests]);
 
   const handleRefresh = async () => {
-    await Promise.all([fetchDashboardStats(), fetchRequests()]);
+    await Promise.all([fetchDashboardStats(), refreshRequests()]);
   };
 
   if (!isAdmin) {

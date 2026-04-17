@@ -13,12 +13,14 @@ import ROUTES from "../../navigation/routes";
 import useRequestDetails from "../../hooks/useRequestDetails";
 import { formatDate, formatDateTime } from "../../utils/formatDate";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { getRequestAuthor } from "../../utils/requestHelpers";
 
 export default function RequestDetailsScreen({ navigation, route }) {
   const requestId = route?.params?.requestId;
 
   const { request, isLoading, error, fetchRequestDetails } =
     useRequestDetails(requestId);
+  const author = getRequestAuthor(request);
 
   const timelineItems = request
     ? [
@@ -78,12 +80,7 @@ export default function RequestDetailsScreen({ navigation, route }) {
         />
 
         <RequestMetaInfo
-          requester={
-            request.requester ||
-            request.requesterName ||
-            request.createdByName ||
-            "Unknown"
-          }
+          requester={author.name}
           quantity={request.quantity || "-"}
           budget={formatCurrency(request.budget || 0)}
           neededBy={formatDate(request.neededBy)}

@@ -14,14 +14,15 @@ import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppInput from "../../components/common/AppInput";
 import AppButton from "../../components/common/AppButton";
 
-import { loginUser } from "../../services/auth/authService";
 import { validateLoginForm } from "../../utils/validators";
-import { getFirebaseFriendlyError } from "../../utils/errorHandler";
+import { getErrorMessage } from "../../utils/errorHandler";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import useAuth from "../../hooks/useAuth";
 import useUiStore from "../../store/useUiStore";
 
 export default function LoginScreen({ navigation }) {
   const setGlobalLoading = useUiStore((state) => state.setGlobalLoading);
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -67,15 +68,17 @@ export default function LoginScreen({ navigation }) {
       setGlobalLoading(true);
       setErrors({});
 
-      await loginUser(trimmedForm);
+      await login(trimmedForm);
 
       showSuccessToast("Login Successful", "Welcome back to SmartProcure");
 
       // Navigation manually করার দরকার নেই যদি AppNavigator auth store / auth listener observe করে
       // AuthProvider + AppNavigator automatic redirect handle করবে
     } catch (error) {
-      const message = getFirebaseFriendlyError(error);
-      showErrorToast("Login Failed", message);
+      showErrorToast(
+        "Login Failed",
+        getErrorMessage(error, "Please try again"),
+      );
     } finally {
       setLoading(false);
       setGlobalLoading(false);

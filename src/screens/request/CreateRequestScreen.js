@@ -12,10 +12,7 @@ import {
   createFormChangeHandler,
   getTrimmedFormValues,
 } from "../../utils/formHelpers";
-import {
-  getFirebaseFriendlyError,
-  getErrorMessage,
-} from "../../utils/errorHandler";
+import { getErrorMessage } from "../../utils/errorHandler";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const INITIAL_FORM = {
@@ -66,11 +63,10 @@ export default function CreateRequestScreen({ navigation }) {
 
       navigation.goBack();
     } catch (error) {
-      const message =
-        getFirebaseFriendlyError(error) ||
-        getErrorMessage(error, "Failed to create request");
-
-      showErrorToast("Submit Failed", message);
+      showErrorToast(
+        "Submit Failed",
+        getErrorMessage(error, "Failed to create request"),
+      );
     } finally {
       setSaving(false);
     }

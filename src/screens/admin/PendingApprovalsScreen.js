@@ -12,7 +12,7 @@ import useRequests from "../../hooks/useRequests";
 import { REQUEST_STATUS } from "../../constants/requestStatus";
 
 export default function PendingApprovalsScreen({ navigation }) {
-  const { requests, isLoading, error, fetchRequests } = useRequests(true);
+  const { requests, isLoading, error, refreshRequests } = useRequests(true);
 
   const pendingRequests = useMemo(() => {
     return (requests || [])
@@ -50,7 +50,7 @@ export default function PendingApprovalsScreen({ navigation }) {
         data={pendingRequests}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        onRefresh={fetchRequests}
+        onRefresh={refreshRequests}
         refreshing={isLoading}
         renderItem={({ item }) => (
           <PendingApprovalCard
