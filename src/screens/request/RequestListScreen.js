@@ -1,53 +1,59 @@
 import { useMemo, useState } from "react";
 import { FlatList, View, StyleSheet } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import SearchBar from "../../components/common/SearchBar";
 import EmptyState from "../../components/common/EmptyState";
-import RequestCard from "../../components/request/RequestCard";
 import AppButton from "../../components/common/AppButton";
+import AppLoader from "../../components/common/AppLoader";
+import RequestCard from "../../components/request/RequestCard";
+
+import ROUTES from "../../navigation/routes";
+import useRequests from "../../hooks/useRequests";
+import useDebounce from "../../hooks/useDebounce";
+import { filterRequests } from "../../utils/requestHelpers";
+import { formatDate } from "../../utils/formatDate";
 
 export default function RequestListScreen({ navigation }) {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
 
-  const requests = [
-    {
-      id: "1",
-      itemName: "Printer Toner",
-      category: "Office Supplies",
-      campus: "Banasree",
-      shift: "Morning",
-      requester: "Arif",
-      date: "17 Apr 2026",
-      status: "Pending",
-      urgency: "High",
-      quotationCount: 3,
-    },
-    {
-      id: "2",
-      itemName: "Projector",
-      category: "IT Equipment",
-      campus: "Malibag",
-      shift: "Day",
-      requester: "Nayeem",
-      date: "16 Apr 2026",
-      status: "Approved",
-      urgency: "Medium",
-      quotationCount: 2,
-    },
-  ];
+  const { requests, isLoading, fetchRequests } = useRequests(true);
+
+  const mappedRequests = useMemo(() => {
+    return (requests || []).map((item) => ({
+      id: item.id,
+      itemName: item.itemName || item.title || "Untitled Request",
+      category: item.category || "Uncategorized",
+      campus: item.campus || "-",
+      shift: item.shift || "-",
+      requester:
+        item.requester || item.requesterName || item.createdByName || "Unknown",
+      date: formatDate(item.createdAt),
+      status: item.status || "Pending",
+      urgency: item.urgency || "Medium",
+      quotationCount: item.quotationCount || 0,
+    }));
+  }, [requests]);
 
   const filteredRequests = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return requests;
+    return filterRequests(mappedRequests, {
+      search: debouncedSearch,
+      campus: "All",
+      shift: "All",
+      status: "All",
+    });
+  }, [mappedRequests, debouncedSearch]);
 
-    return requests.filter(
-      (item) =>
-        item.itemName.toLowerCase().includes(q) ||
-        item.category.toLowerCase().includes(q) ||
-        item.campus.toLowerCase().includes(q),
+  if (isLoading && (!requests || requests.length === 0)) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="All Requests" onBack={() => navigation.goBack()} />
+        <AppLoader />
+      </ScreenWrapper>
     );
-  }, [search]);
+  }
 
   return (
     <ScreenWrapper>
@@ -63,7 +69,7 @@ export default function RequestListScreen({ navigation }) {
         <View style={styles.buttonWrap}>
           <AppButton
             title="Create Request"
-            onPress={() => navigation.navigate("CreateRequest")}
+            onPress={() => navigation.navigate(ROUTES.CREATE_REQUEST)}
           />
         </View>
       </View>
@@ -72,11 +78,15 @@ export default function RequestListScreen({ navigation }) {
         data={filteredRequests}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        onRefresh={fetchRequests}
+        refreshing={isLoading}
         renderItem={({ item }) => (
           <RequestCard
             {...item}
             onPress={() =>
-              navigation.navigate("RequestDetails", { requestId: item.id })
+              navigation.navigate(ROUTES.REQUEST_DETAILS, {
+                requestId: item.id,
+              })
             }
           />
         )}
@@ -96,5 +106,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+    flexGrow: 1,
   },
 });

@@ -1,8 +1,15 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, View, Text, StyleSheet } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import EmptyState from "../../components/common/EmptyState";
+import AppLoader from "../../components/common/AppLoader";
 import StatusBadge from "../../components/common/StatusBadge";
+
+import { getAllUsers } from "../../services/firebase/userService";
+import { getRoleLabel } from "../../utils/roleHelpers";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 function UserCard({ item }) {
   return (
@@ -12,6 +19,7 @@ function UserCard({ item }) {
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.email}>{item.email}</Text>
         </View>
+
         <StatusBadge status={item.status} />
       </View>
 
@@ -24,52 +32,70 @@ function UserCard({ item }) {
 }
 
 export default function UserManagementScreen({ navigation }) {
-  const users = [
-    {
-      id: "1",
-      name: "Arifur Rahman",
-      email: "arifur@email.com",
-      role: "Admin",
-      campus: "Banasree",
-      status: "Approved",
-    },
-    {
-      id: "2",
-      name: "Nayeem Hasan",
-      email: "nayeem@email.com",
-      role: "Member",
-      campus: "Malibag",
-      status: "Approved",
-    },
-    {
-      id: "3",
-      name: "Rahim Uddin",
-      email: "rahim@email.com",
-      role: "Member",
-      campus: "Mohammadpur",
-      status: "Pending",
-    },
-  ];
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await getAllUsers();
+      setUsers(data || []);
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to load users"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const mappedUsers = useMemo(() => {
+    return (users || []).map((item) => ({
+      id: item.id,
+      name: item.name || item.displayName || "Unnamed User",
+      email: item.email || "-",
+      role: getRoleLabel(item.role),
+      campus: item.campus || "-",
+      status: item.status || "Approved",
+    }));
+  }, [users]);
+
+  if (isLoading && users.length === 0) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="User Management" onBack={() => navigation.goBack()} />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
       <AppHeader title="User Management" onBack={() => navigation.goBack()} />
 
       <FlatList
-        data={users}
+        data={mappedUsers}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        onRefresh={fetchUsers}
+        refreshing={isLoading}
         renderItem={({ item }) => <UserCard item={item} />}
-        ListEmptyComponent={<EmptyState text="No users found" />}
-        contentContainerStyle={styles.content}
+        ListEmptyComponent={<EmptyState text={error || "No users found"} />}
+        contentContainerStyle={styles.contentContainer}
       />
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  contentContainer: {
     paddingBottom: 20,
+    flexGrow: 1,
   },
   card: {
     backgroundColor: "#fff",

@@ -1,34 +1,81 @@
-import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { useMemo } from "react";
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  RefreshControl,
+} from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import SummaryStatCard from "../../components/dashboard/SummaryStatCard";
 import QuickActionCard from "../../components/dashboard/QuickActionCard";
 import PendingApprovalCard from "../../components/dashboard/PendingApprovalCard";
+import EmptyState from "../../components/common/EmptyState";
+import AppLoader from "../../components/common/AppLoader";
+
+import ROUTES from "../../navigation/routes";
+import useDashboardStats from "../../hooks/useDashboardStats";
+import useRequests from "../../hooks/useRequests";
+import useUserRole from "../../hooks/useUserRole";
+import { REQUEST_STATUS } from "../../constants/requestStatus";
 
 export default function AdminDashboardScreen({ navigation }) {
-  const stats = {
-    totalUsers: 36,
-    pendingApprovals: 8,
-    activeInstructions: 14,
-    completedThisMonth: 29,
+  const { isAdmin } = useUserRole();
+
+  const {
+    stats,
+    isLoading: statsLoading,
+    fetchDashboardStats,
+  } = useDashboardStats(true);
+
+  const {
+    requests,
+    isLoading: requestsLoading,
+    fetchRequests,
+  } = useRequests(true);
+
+  const isLoading = statsLoading || requestsLoading;
+
+  const pendingItems = useMemo(() => {
+    return (requests || [])
+      .filter(
+        (item) =>
+          String(item.status || "").toLowerCase() ===
+          String(REQUEST_STATUS.PENDING).toLowerCase(),
+      )
+      .slice(0, 5)
+      .map((item) => ({
+        id: item.id,
+        itemName: item.itemName || item.title || "Untitled Request",
+        campus: item.campus || "-",
+        shift: item.shift || "-",
+        quotationCount: item.quotationCount || 0,
+      }));
+  }, [requests]);
+
+  const handleRefresh = async () => {
+    await Promise.all([fetchDashboardStats(), fetchRequests()]);
   };
 
-  const pendingItems = [
-    {
-      id: "1",
-      itemName: "Desktop Computer",
-      campus: "Mohammadpur",
-      shift: "Day",
-      quotationCount: 4,
-    },
-    {
-      id: "2",
-      itemName: "Office Chair",
-      campus: "Malibag",
-      shift: "Morning",
-      quotationCount: 3,
-    },
-  ];
+  if (!isAdmin) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Admin Dashboard" onBack={() => navigation.goBack()} />
+        <EmptyState text="Access denied. Admin permission is required." />
+      </ScreenWrapper>
+    );
+  }
+
+  if (isLoading && (!requests || requests.length === 0)) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Admin Dashboard" onBack={() => navigation.goBack()} />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -37,19 +84,22 @@ export default function AdminDashboardScreen({ navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
+        }
       >
         <Text style={styles.sectionTitle}>System Overview</Text>
 
         <View style={styles.row}>
           <SummaryStatCard
             title="Users"
-            value={stats.totalUsers}
+            value={stats?.totalUsers ?? 0}
             icon="people-outline"
           />
           <View style={styles.gap} />
           <SummaryStatCard
             title="Pending"
-            value={stats.pendingApprovals}
+            value={stats?.pendingApprovals ?? 0}
             icon="time-outline"
           />
         </View>
@@ -57,13 +107,15 @@ export default function AdminDashboardScreen({ navigation }) {
         <View style={styles.row}>
           <SummaryStatCard
             title="Instructions"
-            value={stats.activeInstructions}
+            value={
+              stats?.activeInstructions ?? stats?.completedInstructions ?? 0
+            }
             icon="clipboard-outline"
           />
           <View style={styles.gap} />
           <SummaryStatCard
             title="Completed"
-            value={stats.completedThisMonth}
+            value={stats?.completedInstructions ?? 0}
             icon="checkmark-circle-outline"
           />
         </View>
@@ -74,13 +126,13 @@ export default function AdminDashboardScreen({ navigation }) {
           <QuickActionCard
             title="Pending Approvals"
             icon="checkmark-done-outline"
-            onPress={() => navigation.navigate("PendingApprovals")}
+            onPress={() => navigation.navigate(ROUTES.PENDING_APPROVALS)}
           />
           <View style={styles.gap} />
           <QuickActionCard
             title="User Management"
             icon="people-outline"
-            onPress={() => navigation.navigate("UserManagement")}
+            onPress={() => navigation.navigate(ROUTES.USER_MANAGEMENT)}
           />
         </View>
 
@@ -88,29 +140,36 @@ export default function AdminDashboardScreen({ navigation }) {
           <QuickActionCard
             title="Reports"
             icon="bar-chart-outline"
-            onPress={() => navigation.navigate("Reports")}
+            onPress={() => navigation.navigate(ROUTES.REPORTS)}
           />
           <View style={styles.gap} />
           <QuickActionCard
             title="Instructions"
             icon="clipboard-outline"
-            onPress={() => navigation.navigate("InstructionList")}
+            onPress={() => navigation.navigate(ROUTES.INSTRUCTION_DETAILS)}
           />
         </View>
 
         <Text style={styles.sectionTitle}>Urgent Pending Approvals</Text>
-        {pendingItems.map((item) => (
-          <PendingApprovalCard
-            key={item.id}
-            itemName={item.itemName}
-            campus={item.campus}
-            shift={item.shift}
-            quotationCount={item.quotationCount}
-            onPress={() =>
-              navigation.navigate("RequestDetails", { requestId: item.id })
-            }
-          />
-        ))}
+
+        {pendingItems.length === 0 ? (
+          <EmptyState text="No pending approvals found" />
+        ) : (
+          pendingItems.map((item) => (
+            <PendingApprovalCard
+              key={item.id}
+              itemName={item.itemName}
+              campus={item.campus}
+              shift={item.shift}
+              quotationCount={item.quotationCount}
+              onPress={() =>
+                navigation.navigate(ROUTES.REQUEST_DETAILS, {
+                  requestId: item.id,
+                })
+              }
+            />
+          ))
+        )}
       </ScrollView>
     </ScreenWrapper>
   );

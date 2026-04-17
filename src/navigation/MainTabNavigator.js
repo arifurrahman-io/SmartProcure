@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+
 import DashboardScreen from "../screens/dashboard/DashboardScreen";
 import RequestStackNavigator from "./RequestStackNavigator";
 import InstructionListScreen from "../screens/instruction/InstructionListScreen";
@@ -13,14 +14,19 @@ const getTabIcon = (routeName, focused) => {
   switch (routeName) {
     case ROUTES.DASHBOARD:
       return focused ? "grid" : "grid-outline";
+
     case ROUTES.REQUESTS:
       return focused ? "document-text" : "document-text-outline";
+
     case ROUTES.INSTRUCTIONS:
       return focused ? "clipboard" : "clipboard-outline";
+
     case ROUTES.HISTORY:
       return focused ? "time" : "time-outline";
+
     case ROUTES.PROFILE:
       return focused ? "person" : "person-outline";
+
     default:
       return focused ? "ellipse" : "ellipse-outline";
   }
@@ -38,6 +44,10 @@ export default function MainTabNavigator() {
           paddingBottom: 8,
           paddingTop: 8,
         },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+        },
         tabBarIcon: ({ focused, color, size }) => (
           <Ionicons
             name={getTabIcon(route.name, focused)}
@@ -47,14 +57,35 @@ export default function MainTabNavigator() {
         ),
       })}
     >
-      <Tab.Screen name={ROUTES.DASHBOARD} component={DashboardScreen} />
-      <Tab.Screen name={ROUTES.REQUESTS} component={RequestStackNavigator} />
+      <Tab.Screen
+        name={ROUTES.DASHBOARD}
+        component={DashboardScreen}
+        options={{ tabBarLabel: "Dashboard" }}
+      />
+
+      <Tab.Screen
+        name={ROUTES.REQUESTS}
+        component={RequestStackNavigator}
+        options={{ tabBarLabel: "Requests" }}
+      />
+
       <Tab.Screen
         name={ROUTES.INSTRUCTIONS}
         component={InstructionListScreen}
+        options={{ tabBarLabel: "Instructions" }}
       />
-      <Tab.Screen name={ROUTES.HISTORY} component={HistoryListScreen} />
-      <Tab.Screen name={ROUTES.PROFILE} component={ProfileScreen} />
+
+      <Tab.Screen
+        name={ROUTES.HISTORY}
+        component={HistoryListScreen}
+        options={{ tabBarLabel: "History" }}
+      />
+
+      <Tab.Screen
+        name={ROUTES.PROFILE}
+        component={ProfileScreen}
+        options={{ tabBarLabel: "Profile" }}
+      />
     </Tab.Navigator>
   );
 }

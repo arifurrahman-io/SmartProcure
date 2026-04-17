@@ -4,8 +4,12 @@ const ROUTES = {
   LOGIN: "Login",
   FORGOT_PASSWORD: "ForgotPassword",
 
-  // Main
+  // Root Wrappers
+  AUTH_ROOT: "AuthRoot",
+  ADMIN_ROOT: "AdminRoot",
   MAIN_TABS: "MainTabs",
+
+  // Main Tabs
   DASHBOARD: "Dashboard",
   REQUESTS: "Requests",
   INSTRUCTIONS: "Instructions",
@@ -19,16 +23,16 @@ const ROUTES = {
   EDIT_REQUEST: "EditRequest",
   MY_REQUESTS: "MyRequests",
 
-  // Quotation
+  // Quotation Flow
   SUBMIT_QUOTATION: "SubmitQuotation",
   QUOTATION_LIST: "QuotationList",
   QUOTATION_COMPARISON: "QuotationComparison",
 
-  // Instruction
+  // Instruction Flow
   INSTRUCTION_LIST: "InstructionList",
   INSTRUCTION_DETAILS: "InstructionDetails",
 
-  // History
+  // History Flow
   HISTORY_LIST: "HistoryList",
   AUDIT_TRAIL: "AuditTrail",
 

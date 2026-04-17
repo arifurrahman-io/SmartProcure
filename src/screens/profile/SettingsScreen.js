@@ -1,13 +1,49 @@
 import { ScrollView, StyleSheet, View, Text, Switch } from "react-native";
-import { useState } from "react";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 
+import ROUTES from "../../navigation/routes";
+import useUiStore from "../../store/useUiStore";
+import useAppTheme from "../../hooks/useAppTheme";
+import { showInfoToast } from "../../utils/toast";
+
 export default function SettingsScreen({ navigation }) {
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [emailEnabled, setEmailEnabled] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const {
+    themeMode,
+    setThemeMode,
+    pushEnabled,
+    emailEnabled,
+    setPushEnabled,
+    setEmailEnabled,
+  } = useUiStore();
+
+  const { isDark } = useAppTheme();
+
+  // =========================
+  // Handlers
+  // =========================
+
+  const handlePushToggle = (value) => {
+    setPushEnabled(value);
+    showInfoToast("Push Notifications", value ? "Enabled" : "Disabled");
+  };
+
+  const handleEmailToggle = (value) => {
+    setEmailEnabled(value);
+    showInfoToast("Email Notifications", value ? "Enabled" : "Disabled");
+  };
+
+  const handleThemeToggle = (value) => {
+    const mode = value ? "dark" : "light";
+    setThemeMode(mode);
+
+    showInfoToast(
+      "Theme Updated",
+      value ? "Dark mode enabled" : "Light mode enabled",
+    );
+  };
 
   return (
     <ScreenWrapper>
@@ -17,6 +53,7 @@ export default function SettingsScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
+        {/* Push Notification */}
         <View style={styles.switchCard}>
           <View style={styles.switchTextWrap}>
             <Text style={styles.switchTitle}>Push Notifications</Text>
@@ -24,9 +61,13 @@ export default function SettingsScreen({ navigation }) {
               Receive instant alerts for requests, quotations and approvals
             </Text>
           </View>
-          <Switch value={pushEnabled} onValueChange={setPushEnabled} />
+          <Switch
+            value={pushEnabled ?? true}
+            onValueChange={handlePushToggle}
+          />
         </View>
 
+        {/* Email Notification */}
         <View style={styles.switchCard}>
           <View style={styles.switchTextWrap}>
             <Text style={styles.switchTitle}>Email Notifications</Text>
@@ -34,9 +75,13 @@ export default function SettingsScreen({ navigation }) {
               Get important updates in your email inbox
             </Text>
           </View>
-          <Switch value={emailEnabled} onValueChange={setEmailEnabled} />
+          <Switch
+            value={emailEnabled ?? false}
+            onValueChange={handleEmailToggle}
+          />
         </View>
 
+        {/* Theme */}
         <View style={styles.switchCard}>
           <View style={styles.switchTextWrap}>
             <Text style={styles.switchTitle}>Dark Mode</Text>
@@ -44,9 +89,10 @@ export default function SettingsScreen({ navigation }) {
               Enable dark theme for the app interface
             </Text>
           </View>
-          <Switch value={darkMode} onValueChange={setDarkMode} />
+          <Switch value={isDark} onValueChange={handleThemeToggle} />
         </View>
 
+        {/* Actions */}
         <ProfileMenuItem
           title="Change Password"
           subtitle="Update your account password"
@@ -66,6 +112,13 @@ export default function SettingsScreen({ navigation }) {
           subtitle="Read app terms and privacy policy"
           icon="document-text-outline"
           onPress={() => console.log("terms")}
+        />
+
+        <ProfileMenuItem
+          title="Notification Settings"
+          subtitle="Advanced notification preferences"
+          icon="notifications-outline"
+          onPress={() => navigation.navigate(ROUTES.NOTIFICATIONS)}
         />
       </ScrollView>
     </ScreenWrapper>

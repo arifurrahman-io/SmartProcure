@@ -1,42 +1,57 @@
+import { useMemo } from "react";
 import { FlatList, StyleSheet } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import EmptyState from "../../components/common/EmptyState";
+import AppLoader from "../../components/common/AppLoader";
 import PendingApprovalCard from "../../components/dashboard/PendingApprovalCard";
 
+import ROUTES from "../../navigation/routes";
+import useRequests from "../../hooks/useRequests";
+import { REQUEST_STATUS } from "../../constants/requestStatus";
+
 export default function PendingApprovalsScreen({ navigation }) {
-  const items = [
-    {
-      id: "1",
-      itemName: "Desktop Computer",
-      campus: "Mohammadpur",
-      shift: "Day",
-      quotationCount: 4,
-    },
-    {
-      id: "2",
-      itemName: "Office Chair",
-      campus: "Malibag",
-      shift: "Morning",
-      quotationCount: 3,
-    },
-    {
-      id: "3",
-      itemName: "White Board Marker",
-      campus: "Banasree",
-      shift: "A",
-      quotationCount: 2,
-    },
-  ];
+  const { requests, isLoading, error, fetchRequests } = useRequests(true);
+
+  const pendingRequests = useMemo(() => {
+    return (requests || [])
+      .filter(
+        (item) =>
+          String(item.status || "").toLowerCase() ===
+          String(REQUEST_STATUS.PENDING).toLowerCase(),
+      )
+      .map((item) => ({
+        id: item.id,
+        itemName: item.itemName || item.title || "Untitled Request",
+        campus: item.campus || "-",
+        shift: item.shift || "-",
+        quotationCount: item.quotationCount || 0,
+      }));
+  }, [requests]);
+
+  if (isLoading && (!requests || requests.length === 0)) {
+    return (
+      <ScreenWrapper>
+        <AppHeader
+          title="Pending Approvals"
+          onBack={() => navigation.goBack()}
+        />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
       <AppHeader title="Pending Approvals" onBack={() => navigation.goBack()} />
 
       <FlatList
-        data={items}
+        data={pendingRequests}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        onRefresh={fetchRequests}
+        refreshing={isLoading}
         renderItem={({ item }) => (
           <PendingApprovalCard
             itemName={item.itemName}
@@ -44,11 +59,15 @@ export default function PendingApprovalsScreen({ navigation }) {
             shift={item.shift}
             quotationCount={item.quotationCount}
             onPress={() =>
-              navigation.navigate("RequestDetails", { requestId: item.id })
+              navigation.navigate(ROUTES.REQUEST_DETAILS, {
+                requestId: item.id,
+              })
             }
           />
         )}
-        ListEmptyComponent={<EmptyState text="No pending approvals found" />}
+        ListEmptyComponent={
+          <EmptyState text={error || "No pending approvals found"} />
+        }
         contentContainerStyle={styles.content}
       />
     </ScreenWrapper>
@@ -58,5 +77,6 @@ export default function PendingApprovalsScreen({ navigation }) {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: 20,
+    flexGrow: 1,
   },
 });

@@ -1,22 +1,48 @@
 import { ScrollView, StyleSheet } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import ProfileHeader from "../../components/profile/ProfileHeader";
 import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 import LogoutButton from "../../components/profile/LogoutButton";
+import EmptyState from "../../components/common/EmptyState";
+import AppLoader from "../../components/common/AppLoader";
+
+import ROUTES from "../../navigation/routes";
+import useAuth from "../../hooks/useAuth";
+import { getRoleLabel } from "../../utils/roleHelpers";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 export default function ProfileScreen({ navigation }) {
-  const user = {
-    name: "Arifur Rahman",
-    email: "arifur@email.com",
-    role: "Admin",
-    campus: "Banasree",
+  const { profile, isLoading, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      showSuccessToast("Logged out", "You have been signed out successfully");
+      // AppNavigator auth-state অনুযায়ী redirect করবে
+    } catch (error) {
+      showErrorToast("Logout Failed", error?.message || "Please try again");
+    }
   };
 
-  const handleLogout = () => {
-    console.log("logout");
-    navigation.replace("Login");
-  };
+  if (isLoading) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Profile" onBack={() => navigation.goBack()} />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Profile" onBack={() => navigation.goBack()} />
+        <EmptyState text="User profile not found" />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -27,38 +53,38 @@ export default function ProfileScreen({ navigation }) {
         contentContainerStyle={styles.content}
       >
         <ProfileHeader
-          name={user.name}
-          email={user.email}
-          role={user.role}
-          campus={user.campus}
+          name={profile?.name || profile?.displayName || "User"}
+          email={profile?.email || "-"}
+          role={getRoleLabel(profile?.role)}
+          campus={profile?.campus || "-"}
         />
 
         <ProfileMenuItem
           title="Settings"
           subtitle="Theme, preferences and app behavior"
           icon="settings-outline"
-          onPress={() => navigation.navigate("Settings")}
+          onPress={() => navigation.navigate(ROUTES.SETTINGS)}
         />
 
         <ProfileMenuItem
           title="Notifications"
           subtitle="View all recent alerts and updates"
           icon="notifications-outline"
-          onPress={() => navigation.navigate("Notifications")}
+          onPress={() => navigation.navigate(ROUTES.NOTIFICATIONS)}
         />
 
         <ProfileMenuItem
           title="My Requests"
           subtitle="See requests you have submitted"
           icon="folder-open-outline"
-          onPress={() => navigation.navigate("MyRequests")}
+          onPress={() => navigation.navigate(ROUTES.MY_REQUESTS)}
         />
 
         <ProfileMenuItem
           title="Purchase History"
           subtitle="Completed and archived procurements"
           icon="time-outline"
-          onPress={() => navigation.navigate("HistoryList")}
+          onPress={() => navigation.navigate(ROUTES.HISTORY_LIST)}
         />
 
         <ProfileMenuItem
