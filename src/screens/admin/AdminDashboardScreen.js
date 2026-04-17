@@ -146,7 +146,7 @@ export default function AdminDashboardScreen({ navigation }) {
           <QuickActionCard
             title="Instructions"
             icon="clipboard-outline"
-            onPress={() => navigation.navigate(ROUTES.INSTRUCTION_DETAILS)}
+            onPress={() => navigation.navigate(ROUTES.INSTRUCTION_LIST)}
           />
         </View>
 

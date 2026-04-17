@@ -75,11 +75,59 @@ export const markInstructionCompleted = async (
   completionNote,
 ) => {
   const ref = doc(db, COLLECTIONS.INSTRUCTIONS, instructionId);
+  const snapshot = await getDoc(ref);
+  const instruction = snapshot.exists() ? snapshot.data() : null;
+  const completedAt = new Date().toISOString();
+
   await updateDoc(ref, {
     status: "Completed",
     completionNote,
-    completedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    completedAt,
+    updatedAt: completedAt,
   });
+
+  if (instruction) {
+    const historyRef = collection(db, COLLECTIONS.HISTORY);
+    await addDoc(historyRef, {
+      instructionId,
+      requestId: instruction.requestId || null,
+      quotationId: instruction.quotationId || null,
+      itemName: instruction.itemName || instruction.title || "Untitled Item",
+      vendorName: instruction.vendorName || "Unknown Vendor",
+      vendorContact: instruction.vendorContact || instruction.vendorPhone || "",
+      specification: instruction.specification || instruction.description || "",
+      address: instruction.address || instruction.vendorAddress || "",
+      amount: Number(instruction.amount || 0),
+      campus: instruction.campus || "",
+      shift: instruction.shift || "",
+      approvedBy: instruction.approvedBy || "Admin",
+      approvedAt: instruction.approvedAt || instruction.createdAt || "",
+      status: "Completed",
+      completionNote,
+      completedAt,
+      createdAt: completedAt,
+      timeline: [
+        {
+          title: "Purchase Instruction Created",
+          description: "Instruction sent for procurement execution.",
+          time: instruction.createdAt || "",
+        },
+        instruction.approvedAt
+          ? {
+              title: "Quotation Approved",
+              description: "Final quotation approved for processing.",
+              time: instruction.approvedAt,
+            }
+          : null,
+        {
+          title: "Procurement Completed",
+          description:
+            completionNote || "Completion note added and history archived.",
+          time: completedAt,
+        },
+      ].filter(Boolean),
+    });
+  }
+
   return true;
 };

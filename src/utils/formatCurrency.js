@@ -1,6 +1,6 @@
 export const formatCurrency = (
   amount,
-  { locale = "en-BD", currency = "BDT", fallback = "৳ 0" } = {},
+  { locale = "en-BD", currency = "BDT", fallback = "BDT 0" } = {},
 ) => {
   const numericAmount = Number(amount);
 
@@ -13,28 +13,28 @@ export const formatCurrency = (
       maximumFractionDigits: 0,
     }).format(numericAmount);
   } catch {
-    return `৳ ${numericAmount}`;
+    return `BDT ${numericAmount}`;
   }
 };
 
 export const formatCompactCurrency = (amount) => {
   const numericAmount = Number(amount);
 
-  if (Number.isNaN(numericAmount)) return "৳ 0";
+  if (Number.isNaN(numericAmount)) return "BDT 0";
 
   if (numericAmount >= 10000000) {
-    return `৳ ${(numericAmount / 10000000).toFixed(1)}Cr`;
+    return `BDT ${(numericAmount / 10000000).toFixed(1)}Cr`;
   }
 
   if (numericAmount >= 100000) {
-    return `৳ ${(numericAmount / 100000).toFixed(1)}L`;
+    return `BDT ${(numericAmount / 100000).toFixed(1)}L`;
   }
 
   if (numericAmount >= 1000) {
-    return `৳ ${(numericAmount / 1000).toFixed(1)}K`;
+    return `BDT ${(numericAmount / 1000).toFixed(1)}K`;
   }
 
-  return `৳ ${numericAmount}`;
+  return `BDT ${numericAmount}`;
 };
 
 export default formatCurrency;

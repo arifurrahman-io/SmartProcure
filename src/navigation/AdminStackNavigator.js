@@ -6,6 +6,7 @@ import UserManagementScreen from "../screens/admin/UserManagementScreen";
 import ReportsScreen from "../screens/admin/ReportsScreen";
 
 import RequestDetailsScreen from "../screens/request/RequestDetailsScreen";
+import InstructionListScreen from "../screens/instruction/InstructionListScreen";
 import InstructionDetailsScreen from "../screens/instruction/InstructionDetailsScreen";
 
 import ROUTES from "./routes";
@@ -40,6 +41,11 @@ export default function AdminStackNavigator() {
       <Stack.Screen
         name={ROUTES.INSTRUCTION_DETAILS}
         component={InstructionDetailsScreen}
+      />
+
+      <Stack.Screen
+        name={ROUTES.INSTRUCTION_LIST}
+        component={InstructionListScreen}
       />
     </Stack.Navigator>
   );

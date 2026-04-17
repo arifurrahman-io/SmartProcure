@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -81,7 +81,6 @@ export default function QuotationComparisonScreen({ navigation, route }) {
       setShowApproveModal(false);
       await fetchQuotations();
 
-      // চাইলে request details-এ ফেরত যেতে পারো
       navigation.goBack();
     } catch (error) {
       const message =
@@ -127,8 +126,9 @@ export default function QuotationComparisonScreen({ navigation, route }) {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
-        onRefresh={fetchQuotations}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={fetchQuotations} />
+        }
       >
         {normalizedQuotations.length === 0 ? (
           <EmptyState text="No quotations submitted yet" />

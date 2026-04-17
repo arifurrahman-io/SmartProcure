@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -7,6 +7,7 @@ import EmptyState from "../../components/common/EmptyState";
 import AppLoader from "../../components/common/AppLoader";
 import NotificationGroup from "../../components/notification/NotificationGroup";
 
+import ROUTES from "../../navigation/routes";
 import useNotifications from "../../hooks/useNotifications";
 import { formatDateTime } from "../../utils/formatDate";
 
@@ -57,14 +58,19 @@ export default function NotificationsScreen({ navigation }) {
       await markAsRead(item.id);
     }
 
-    // পরে related type অনুযায়ী navigation করতে পারো
-    // উদাহরণ:
-    // if (item.type === "request" && item.relatedId) {
-    //   navigation.navigate("Requests", {
-    //     screen: "RequestDetails",
-    //     params: { requestId: item.relatedId },
-    //   });
-    // }
+    if (item.type === "request" && item.relatedId) {
+      navigation.navigate(ROUTES.MAIN_TABS, {
+        screen: ROUTES.REQUESTS,
+        params: {
+          screen: ROUTES.REQUEST_DETAILS,
+          params: { requestId: item.relatedId },
+        },
+      });
+    } else if (item.type === "instruction" && item.relatedId) {
+      navigation.navigate(ROUTES.INSTRUCTION_DETAILS, {
+        instructionId: item.relatedId,
+      });
+    }
   };
 
   if (isLoading && (!notifications || notifications.length === 0)) {
@@ -86,8 +92,12 @@ export default function NotificationsScreen({ navigation }) {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.content}
-          refreshing={isLoading}
-          onRefresh={fetchNotifications}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={fetchNotifications}
+            />
+          }
         >
           {groupedNotifications.today.length > 0 ? (
             <NotificationGroup

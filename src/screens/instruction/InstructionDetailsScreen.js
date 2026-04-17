@@ -1,47 +1,95 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View, Text } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import AppButton from "../../components/common/AppButton";
+import AppLoader from "../../components/common/AppLoader";
+import EmptyState from "../../components/common/EmptyState";
 import InstructionStatusTracker from "../../components/instruction/InstructionStatusTracker";
 import CompletionNoteModal from "../../components/instruction/CompletionNoteModal";
 import VendorInfoCard from "../../components/quotation/VendorInfoCard";
 import StatusBadge from "../../components/common/StatusBadge";
 
+import useInstructions from "../../hooks/useInstructions";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { formatDate } from "../../utils/formatDate";
+
 export default function InstructionDetailsScreen({ navigation, route }) {
   const instructionId = route?.params?.instructionId;
-
-  const instruction = {
-    id: instructionId || "1",
-    itemName: "Projector",
-    vendorName: "Tech World BD",
-    vendorContact: "017XXXXXXXX",
-    specification: "Full HD projector",
-    address: "Dhaka",
-    amount: "৳ 45,000",
-    campus: "Banasree",
-    shift: "Morning",
-    approvedBy: "Admin",
-    approvedAt: "17 Apr 2026",
-    status: "Delivered",
-    note: "Vendor confirmed dispatch and delivery completed.",
-  };
+  const {
+    instruction,
+    isLoading,
+    error,
+    fetchInstructionDetails,
+    completeInstruction,
+  } = useInstructions(instructionId, true);
 
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [completionLoading, setCompletionLoading] = useState(false);
+
+  const mappedInstruction = useMemo(() => {
+    if (!instruction) return null;
+
+    return {
+      id: instruction.id,
+      itemName:
+        instruction.itemName || instruction.title || "Untitled Instruction",
+      vendorName: instruction.vendorName || "Unknown Vendor",
+      vendorContact:
+        instruction.vendorContact || instruction.vendorPhone || "-",
+      specification:
+        instruction.specification || instruction.description || "-",
+      address: instruction.address || instruction.vendorAddress || "",
+      amount: formatCurrency(instruction.amount || 0),
+      campus: instruction.campus || "-",
+      shift: instruction.shift || "-",
+      approvedBy: instruction.approvedBy || "Admin",
+      approvedAt: formatDate(instruction.approvedAt || instruction.createdAt),
+      status: instruction.status || "Approved",
+      note: instruction.completionNote || instruction.note || "-",
+    };
+  }, [instruction]);
+
+  const isCompleted =
+    String(mappedInstruction?.status || "").toLowerCase() === "completed";
 
   const handleComplete = async (note) => {
     try {
-      setLoading(true);
-      console.log("Complete instruction:", instruction.id, note);
+      setCompletionLoading(true);
+      await completeInstruction(note);
       setShowModal(false);
-      navigation.goBack();
+      await fetchInstructionDetails();
     } catch (error) {
       console.log("Complete error:", error);
     } finally {
-      setLoading(false);
+      setCompletionLoading(false);
     }
   };
+
+  if (isLoading && !mappedInstruction) {
+    return (
+      <ScreenWrapper>
+        <AppHeader
+          title="Instruction Details"
+          onBack={() => navigation.goBack()}
+        />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
+
+  if (error || !mappedInstruction) {
+    return (
+      <ScreenWrapper>
+        <AppHeader
+          title="Instruction Details"
+          onBack={() => navigation.goBack()}
+        />
+        <EmptyState text={error || "Instruction details not found"} />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -54,46 +102,52 @@ export default function InstructionDetailsScreen({ navigation, route }) {
         <View style={styles.card}>
           <View style={styles.topRow}>
             <View style={styles.titleWrap}>
-              <Text style={styles.itemName}>{instruction.itemName}</Text>
+              <Text style={styles.itemName}>{mappedInstruction.itemName}</Text>
               <Text style={styles.meta}>
-                {instruction.campus} • {instruction.shift}
+                {mappedInstruction.campus} - {mappedInstruction.shift}
               </Text>
             </View>
-            <StatusBadge status={instruction.status} />
+            <StatusBadge status={mappedInstruction.status} />
           </View>
 
-          <Text style={styles.amount}>{instruction.amount}</Text>
+          <Text style={styles.amount}>{mappedInstruction.amount}</Text>
           <Text style={styles.subMeta}>
-            Approved by {instruction.approvedBy} on {instruction.approvedAt}
+            Approved by {mappedInstruction.approvedBy} on{" "}
+            {mappedInstruction.approvedAt}
           </Text>
         </View>
 
-        <InstructionStatusTracker currentStatus={instruction.status} />
+        <InstructionStatusTracker currentStatus={mappedInstruction.status} />
 
         <VendorInfoCard
-          vendorName={instruction.vendorName}
-          vendorContact={instruction.vendorContact}
-          specification={instruction.specification}
-          address={instruction.address}
+          vendorName={mappedInstruction.vendorName}
+          vendorContact={mappedInstruction.vendorContact}
+          specification={mappedInstruction.specification}
+          address={mappedInstruction.address}
         />
 
         <View style={styles.noteCard}>
           <Text style={styles.noteTitle}>Completion / Delivery Note</Text>
-          <Text style={styles.noteText}>{instruction.note}</Text>
+          <Text style={styles.noteText}>{mappedInstruction.note}</Text>
         </View>
 
-        <AppButton
-          title="Mark as Completed"
-          onPress={() => setShowModal(true)}
-          style={styles.button}
-        />
+        {!isCompleted ? (
+          <AppButton
+            title="Mark as Completed"
+            onPress={() => setShowModal(true)}
+            style={styles.button}
+          />
+        ) : null}
       </ScrollView>
 
       <CompletionNoteModal
         visible={showModal}
         onClose={() => setShowModal(false)}
         onSubmit={handleComplete}
-        loading={loading}
+        loading={completionLoading}
+        defaultValue={
+          mappedInstruction.note === "-" ? "" : mappedInstruction.note
+        }
       />
     </ScreenWrapper>
   );

@@ -7,7 +7,13 @@ import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 import ROUTES from "../../navigation/routes";
 import useUiStore from "../../store/useUiStore";
 import useAppTheme from "../../hooks/useAppTheme";
-import { showInfoToast } from "../../utils/toast";
+import useAuth from "../../hooks/useAuth";
+import { resetUserPassword } from "../../services/auth/authService";
+import {
+  showErrorToast,
+  showInfoToast,
+  showSuccessToast,
+} from "../../utils/toast";
 
 export default function SettingsScreen({ navigation }) {
   const {
@@ -20,6 +26,7 @@ export default function SettingsScreen({ navigation }) {
   } = useUiStore();
 
   const { isDark } = useAppTheme();
+  const { profile } = useAuth();
 
   // =========================
   // Handlers
@@ -43,6 +50,25 @@ export default function SettingsScreen({ navigation }) {
       "Theme Updated",
       value ? "Dark mode enabled" : "Light mode enabled",
     );
+  };
+
+  const handleChangePassword = async () => {
+    const email = profile?.email;
+
+    if (!email) {
+      showErrorToast("Email Not Found", "Unable to send a reset link");
+      return;
+    }
+
+    try {
+      await resetUserPassword(email);
+      showSuccessToast("Reset Link Sent", "Check your email inbox");
+    } catch (error) {
+      showErrorToast(
+        "Reset Failed",
+        error?.message || "Unable to send password reset email",
+      );
+    }
   };
 
   return (
@@ -97,7 +123,7 @@ export default function SettingsScreen({ navigation }) {
           title="Change Password"
           subtitle="Update your account password"
           icon="lock-closed-outline"
-          onPress={() => console.log("change password")}
+          onPress={handleChangePassword}
         />
 
         <ProfileMenuItem
@@ -111,7 +137,9 @@ export default function SettingsScreen({ navigation }) {
           title="Terms & Privacy"
           subtitle="Read app terms and privacy policy"
           icon="document-text-outline"
-          onPress={() => console.log("terms")}
+          onPress={() =>
+            showInfoToast("Terms & Privacy", "Please contact your system admin")
+          }
         />
 
         <ProfileMenuItem

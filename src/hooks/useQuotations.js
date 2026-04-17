@@ -4,6 +4,11 @@ import {
   getQuotationsByRequest,
   approveQuotation,
 } from "../services/firebase/quotationService";
+import {
+  getRequestById,
+  updateRequest,
+} from "../services/firebase/requestService";
+import { createInstruction } from "../services/firebase/instructionService";
 import useAuthStore from "../store/useAuthStore";
 import useQuotationStore from "../store/useQuotationStore";
 
@@ -78,7 +83,56 @@ export default function useQuotations(requestId, autoLoad = true) {
         setIsLoading(true);
         setError(null);
 
-        await approveQuotation(quotationId, profile?.name || "Admin");
+        const approvedBy = profile?.name || "Admin";
+        const approvedAt = new Date().toISOString();
+        const selectedQuotation = quotations.find(
+          (item) => item.id === quotationId,
+        );
+        const request = requestId ? await getRequestById(requestId) : null;
+
+        await approveQuotation(quotationId, approvedBy);
+
+        if (requestId) {
+          await updateRequest(requestId, {
+            status: "Approved",
+            approvedQuotationId: quotationId,
+            approvedBy,
+            approvedAt,
+          });
+        }
+
+        if (selectedQuotation || request) {
+          await createInstruction({
+            requestId,
+            quotationId,
+            itemName:
+              request?.itemName ||
+              request?.title ||
+              selectedQuotation?.itemName ||
+              "Untitled Item",
+            vendorName: selectedQuotation?.vendorName || "Unknown Vendor",
+            vendorContact:
+              selectedQuotation?.vendorContact ||
+              selectedQuotation?.vendorPhone ||
+              "",
+            specification:
+              selectedQuotation?.specification ||
+              request?.specification ||
+              request?.description ||
+              "",
+            address:
+              selectedQuotation?.address ||
+              selectedQuotation?.vendorAddress ||
+              "",
+            amount: Number(selectedQuotation?.amount || 0),
+            campus: request?.campus || selectedQuotation?.campus || "",
+            shift: request?.shift || selectedQuotation?.shift || "",
+            approvedBy,
+            approvedAt,
+            status: "Approved",
+          });
+        }
+
         markApprovedQuotation(quotationId);
 
         return true;
@@ -90,7 +144,14 @@ export default function useQuotations(requestId, autoLoad = true) {
         setIsLoading(false);
       }
     },
-    [profile, markApprovedQuotation, setIsLoading, setError],
+    [
+      profile,
+      quotations,
+      requestId,
+      markApprovedQuotation,
+      setIsLoading,
+      setError,
+    ],
   );
 
   useEffect(() => {

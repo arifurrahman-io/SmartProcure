@@ -35,7 +35,7 @@ export default function InstructionCard({
       <View style={styles.infoRow}>
         <Ionicons name="location-outline" size={14} color="#64748B" />
         <Text style={styles.infoText}>
-          {campus} • {shift}
+          {campus} - {shift}
         </Text>
       </View>
 

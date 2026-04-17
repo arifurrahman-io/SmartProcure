@@ -1,8 +1,16 @@
+import { useMemo } from "react";
 import { FlatList, StyleSheet, View, Text } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import EmptyState from "../../components/common/EmptyState";
+import AppLoader from "../../components/common/AppLoader";
 import StatusBadge from "../../components/common/StatusBadge";
+
+import ROUTES from "../../navigation/routes";
+import useHistory from "../../hooks/useHistory";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { formatDate } from "../../utils/formatDate";
 
 function HistoryItem({ item, onPress }) {
   return (
@@ -11,10 +19,10 @@ function HistoryItem({ item, onPress }) {
         <View style={styles.content}>
           <Text style={styles.title}>{item.itemName}</Text>
           <Text style={styles.meta}>
-            {item.campus} • {item.shift} • {item.date}
+            {item.campus} - {item.shift} - {item.date}
           </Text>
           <Text style={styles.subText}>
-            Vendor: {item.vendorName} • Amount: {item.amount}
+            Vendor: {item.vendorName} - Amount: {item.amount}
           </Text>
         </View>
         <StatusBadge status={item.status} />
@@ -27,48 +35,56 @@ function HistoryItem({ item, onPress }) {
 }
 
 export default function HistoryListScreen({ navigation }) {
-  const history = [
-    {
-      id: "1",
-      itemName: "Printer Toner",
-      campus: "Banasree",
-      shift: "Morning",
-      date: "17 Apr 2026",
-      vendorName: "Office Supply House",
-      amount: "৳ 13,900",
-      status: "Completed",
-    },
-    {
-      id: "2",
-      itemName: "Projector",
-      campus: "Malibag",
-      shift: "Day",
-      date: "16 Apr 2026",
-      vendorName: "Tech World BD",
-      amount: "৳ 45,000",
-      status: "Delivered",
-    },
-  ];
+  const { history, isLoading, error, fetchHistory } = useHistory(null, true);
+
+  const mappedHistory = useMemo(() => {
+    return (history || []).map((item) => ({
+      id: item.id,
+      itemName: item.itemName || item.title || "Untitled Item",
+      campus: item.campus || "-",
+      shift: item.shift || "-",
+      date: formatDate(item.completedAt || item.createdAt),
+      vendorName: item.vendorName || "Unknown Vendor",
+      amount: formatCurrency(item.amount || 0),
+      status: item.status || "Completed",
+    }));
+  }, [history]);
+
+  if (isLoading && mappedHistory.length === 0) {
+    return (
+      <ScreenWrapper>
+        <AppHeader
+          title="Purchase History"
+          onBack={() => navigation.goBack()}
+        />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
       <AppHeader title="Purchase History" onBack={() => navigation.goBack()} />
 
       <FlatList
-        data={history}
+        data={mappedHistory}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        onRefresh={fetchHistory}
+        refreshing={isLoading}
         renderItem={({ item }) => (
           <HistoryItem
             item={item}
             onPress={() =>
-              navigation.navigate("AuditTrail", {
+              navigation.navigate(ROUTES.AUDIT_TRAIL, {
                 historyId: item.id,
               })
             }
           />
         )}
-        ListEmptyComponent={<EmptyState text="No procurement history found" />}
+        ListEmptyComponent={
+          <EmptyState text={error || "No procurement history found"} />
+        }
         contentContainerStyle={styles.contentContainer}
       />
     </ScreenWrapper>
@@ -78,6 +94,7 @@ export default function HistoryListScreen({ navigation }) {
 const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 20,
+    flexGrow: 1,
   },
   historyCard: {
     backgroundColor: "#fff",

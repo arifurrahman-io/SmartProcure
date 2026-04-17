@@ -44,6 +44,7 @@ export default function useRequests(autoLoad = true) {
           ...payload,
           createdBy: profile?.id || profile?.uid || null,
           requesterName: profile?.name || "Unknown User",
+          requesterEmail: profile?.email || "",
           status: payload.status || "Pending",
         };
 

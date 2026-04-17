@@ -10,21 +10,34 @@ import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
 import AppInput from "../../components/common/AppInput";
 import AppButton from "../../components/common/AppButton";
+import { resetUserPassword } from "../../services/auth/authService";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleResetPassword = async () => {
+    const safeEmail = email.trim();
+
+    if (!safeEmail) {
+      showErrorToast("Email Required", "Enter your registered email address");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      // TODO: Firebase password reset logic here
-      console.log("Reset password for:", email);
+      await resetUserPassword(safeEmail);
+      showSuccessToast("Reset Link Sent", "Check your email inbox");
 
       navigation.goBack();
     } catch (error) {
       console.log("Reset error:", error);
+      showErrorToast(
+        "Reset Failed",
+        error?.message || "Unable to send password reset email",
+      );
     } finally {
       setLoading(false);
     }

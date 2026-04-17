@@ -1,43 +1,87 @@
+import { useMemo } from "react";
 import { ScrollView, StyleSheet, View, Text } from "react-native";
+
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
+import AppLoader from "../../components/common/AppLoader";
+import EmptyState from "../../components/common/EmptyState";
 import RequestTimeline from "../../components/request/RequestTimeline";
+
+import useHistory from "../../hooks/useHistory";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { formatDateTime } from "../../utils/formatDate";
+
+const normalizeTimeline = (items = []) => {
+  return items
+    .map((item) => ({
+      title: item.title || item.action || "Activity Updated",
+      description: item.description || item.note || "",
+      time: formatDateTime(item.time || item.createdAt || item.updatedAt),
+    }))
+    .filter((item) => item.title);
+};
 
 export default function AuditTrailScreen({ navigation, route }) {
   const historyId = route?.params?.historyId;
+  const { historyRecord, isLoading, error } = useHistory(historyId, true);
 
-  const auditItems = [
-    {
-      title: "Request Created",
-      description: "Purchase request submitted by committee member.",
-      time: "17 Apr 2026, 9:20 AM",
-    },
-    {
-      title: "Quotation Submitted",
-      description: "Vendor quotation added by Rahim.",
-      time: "17 Apr 2026, 10:05 AM",
-    },
-    {
-      title: "Quotation Approved",
-      description: "Admin approved the final quotation for processing.",
-      time: "17 Apr 2026, 11:00 AM",
-    },
-    {
-      title: "Purchase Instruction Created",
-      description: "Instruction sent for procurement execution.",
-      time: "17 Apr 2026, 11:15 AM",
-    },
-    {
-      title: "Item Delivered",
-      description: "Vendor completed delivery to designated campus.",
-      time: "18 Apr 2026, 10:40 AM",
-    },
-    {
-      title: "Procurement Completed",
-      description: "Completion note added and history archived.",
-      time: "18 Apr 2026, 12:10 PM",
-    },
-  ];
+  const auditItems = useMemo(() => {
+    if (!historyRecord) return [];
+
+    const sourceItems =
+      historyRecord.timeline ||
+      historyRecord.auditItems ||
+      historyRecord.activities ||
+      [];
+
+    const timeline = normalizeTimeline(sourceItems);
+
+    if (timeline.length > 0) return timeline;
+
+    return [
+      historyRecord.approvedAt
+        ? {
+            title: "Quotation Approved",
+            description: "Final quotation approved for processing.",
+            time: formatDateTime(historyRecord.approvedAt),
+          }
+        : null,
+      historyRecord.createdAt
+        ? {
+            title: "History Record Created",
+            description: "Procurement record added to purchase history.",
+            time: formatDateTime(historyRecord.createdAt),
+          }
+        : null,
+      historyRecord.completedAt
+        ? {
+            title: "Procurement Completed",
+            description:
+              historyRecord.completionNote ||
+              "Purchase completion recorded in the system.",
+            time: formatDateTime(historyRecord.completedAt),
+          }
+        : null,
+    ].filter(Boolean);
+  }, [historyRecord]);
+
+  if (isLoading && !historyRecord) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Audit Trail" onBack={() => navigation.goBack()} />
+        <AppLoader />
+      </ScreenWrapper>
+    );
+  }
+
+  if (error || !historyRecord) {
+    return (
+      <ScreenWrapper>
+        <AppHeader title="Audit Trail" onBack={() => navigation.goBack()} />
+        <EmptyState text={error || "Audit trail not found"} />
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -45,10 +89,18 @@ export default function AuditTrailScreen({ navigation, route }) {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Audit Record</Text>
-          <Text style={styles.summaryText}>History ID: {historyId || "-"}</Text>
+          <Text style={styles.summaryTitle}>
+            {historyRecord.itemName || historyRecord.title || "Audit Record"}
+          </Text>
+          <Text style={styles.summaryText}>History ID: {historyRecord.id}</Text>
           <Text style={styles.summaryText}>
-            Full lifecycle log for this procurement item.
+            Vendor: {historyRecord.vendorName || "Unknown Vendor"}
+          </Text>
+          <Text style={styles.summaryText}>
+            Amount: {formatCurrency(historyRecord.amount || 0)}
+          </Text>
+          <Text style={styles.summaryText}>
+            Status: {historyRecord.status || "Completed"}
           </Text>
         </View>
 

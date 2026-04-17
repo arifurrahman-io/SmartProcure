@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -119,8 +119,12 @@ export default function EditRequestScreen({ navigation, route }) {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
-        onRefresh={fetchRequestDetails}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchRequestDetails}
+          />
+        }
       >
         <RequestForm values={values} onChange={handleChange} />
 

@@ -1,4 +1,4 @@
-import { ScrollView, View, StyleSheet } from "react-native";
+import { RefreshControl, ScrollView, View, StyleSheet } from "react-native";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -61,8 +61,12 @@ export default function RequestDetailsScreen({ navigation, route }) {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
-        onRefresh={fetchRequestDetails}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchRequestDetails}
+          />
+        }
       >
         <RequestDetailsHeader
           itemName={request.itemName || request.title || "Untitled Request"}

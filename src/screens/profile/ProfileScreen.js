@@ -11,7 +11,11 @@ import AppLoader from "../../components/common/AppLoader";
 import ROUTES from "../../navigation/routes";
 import useAuth from "../../hooks/useAuth";
 import { getRoleLabel } from "../../utils/roleHelpers";
-import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import {
+  showErrorToast,
+  showInfoToast,
+  showSuccessToast,
+} from "../../utils/toast";
 
 export default function ProfileScreen({ navigation }) {
   const { profile, isLoading, logout } = useAuth();
@@ -20,7 +24,6 @@ export default function ProfileScreen({ navigation }) {
     try {
       await logout();
       showSuccessToast("Logged out", "You have been signed out successfully");
-      // AppNavigator auth-state অনুযায়ী redirect করবে
     } catch (error) {
       showErrorToast("Logout Failed", error?.message || "Please try again");
     }
@@ -77,21 +80,27 @@ export default function ProfileScreen({ navigation }) {
           title="My Requests"
           subtitle="See requests you have submitted"
           icon="folder-open-outline"
-          onPress={() => navigation.navigate(ROUTES.MY_REQUESTS)}
+          onPress={() =>
+            navigation.navigate(ROUTES.REQUESTS, {
+              screen: ROUTES.MY_REQUESTS,
+            })
+          }
         />
 
         <ProfileMenuItem
           title="Purchase History"
           subtitle="Completed and archived procurements"
           icon="time-outline"
-          onPress={() => navigation.navigate(ROUTES.HISTORY_LIST)}
+          onPress={() => navigation.navigate(ROUTES.HISTORY)}
         />
 
         <ProfileMenuItem
           title="Help & Support"
           subtitle="Contact support or get assistance"
           icon="help-circle-outline"
-          onPress={() => console.log("support")}
+          onPress={() =>
+            showInfoToast("Support", "Please contact your system admin")
+          }
         />
 
         <ProfileMenuItem
@@ -99,7 +108,12 @@ export default function ProfileScreen({ navigation }) {
           subtitle="This action may require admin confirmation"
           icon="trash-outline"
           danger
-          onPress={() => console.log("delete account")}
+          onPress={() =>
+            showInfoToast(
+              "Admin Required",
+              "Contact an admin to request account deletion",
+            )
+          }
         />
 
         <LogoutButton onPress={handleLogout} />

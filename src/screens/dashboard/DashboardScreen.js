@@ -61,7 +61,7 @@ export default function DashboardScreen({ navigation }) {
         String(item.status || "").toLowerCase() === "approved"
           ? "Request approved"
           : "New request submitted",
-      subtitle: `${item.itemName || item.title || "Untitled Request"} • ${
+      subtitle: `${item.itemName || item.title || "Untitled Request"} - ${
         item.campus || "-"
       } campus`,
       time: formatDateTime(item.updatedAt || item.createdAt),
