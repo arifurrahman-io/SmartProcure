@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Platform, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import StatusBadge from "../common/StatusBadge";
 
@@ -54,17 +54,24 @@ export default function InstructionCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 2,
+      },
+    }),
   },
   topRow: {
     flexDirection: "row",

@@ -1,7 +1,14 @@
 import { View, Text, StyleSheet } from "react-native";
 
+const formatStatusLabel = (status) =>
+  String(status || "Pending")
+    .replace(/_/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 export default function StatusBadge({ status = "Pending" }) {
-  const value = String(status).toLowerCase();
+  const label = formatStatusLabel(status);
+  const value = label.toLowerCase();
 
   let bgColor = "#FFF7ED";
   let textColor = "#EA580C";
@@ -9,7 +16,10 @@ export default function StatusBadge({ status = "Pending" }) {
   if (value === "approved") {
     bgColor = "#ECFDF5";
     textColor = "#059669";
-  } else if (value === "purchase in progress") {
+  } else if (
+    value === "purchase in progress" ||
+    value === "quotation received"
+  ) {
     bgColor = "#EEF4FF";
     textColor = "#2563EB";
   } else if (value === "delivered") {
@@ -25,7 +35,7 @@ export default function StatusBadge({ status = "Pending" }) {
 
   return (
     <View style={[styles.badge, { backgroundColor: bgColor }]}>
-      <Text style={[styles.text, { color: textColor }]}>{status}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{label}</Text>
     </View>
   );
 }
@@ -34,7 +44,7 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 999,
+    borderRadius: 8,
     alignSelf: "flex-start",
   },
   text: {

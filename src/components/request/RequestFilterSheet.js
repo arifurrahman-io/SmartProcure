@@ -80,8 +80,8 @@ function FilterGroup({ title, options, selected, onSelect }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 16,
   },
   heading: {
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     borderColor: "#E2E8F0",
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: 8,
   },
   activeChip: {
     backgroundColor: "#EEF4FF",

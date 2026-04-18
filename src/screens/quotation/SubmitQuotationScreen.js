@@ -62,7 +62,11 @@ export default function SubmitQuotationScreen({ navigation, route }) {
         amount: Number(trimmedValues.amount),
       };
 
-      await submitQuotation(payload);
+      const result = await submitQuotation(payload);
+
+      if (!result?.success) {
+        throw new Error(result?.error || "Failed to submit quotation");
+      }
 
       showSuccessToast(
         "Quotation Submitted",

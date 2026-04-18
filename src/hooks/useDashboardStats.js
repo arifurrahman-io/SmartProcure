@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getDashboardSummary } from "../services/firebase/dashboardService";
+import useAuthStore from "../store/useAuthStore";
 import { logError } from "../utils/logger";
+import { isAdminRole } from "../utils/roleHelpers";
 
 const INITIAL_STATE = {
   totalRequests: 0,
@@ -11,11 +13,13 @@ const INITIAL_STATE = {
 };
 
 export default function useDashboardStats(autoLoad = true) {
+  const profile = useAuthStore((state) => state.profile);
   const [stats, setStats] = useState(INITIAL_STATE);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const isMountedRef = useRef(true);
+  const includeUsers = isAdminRole(profile?.role);
 
   // =========================
   // Fetch Stats
@@ -25,7 +29,7 @@ export default function useDashboardStats(autoLoad = true) {
       setIsLoading(true);
       setError(null);
 
-      const summary = await getDashboardSummary();
+      const summary = await getDashboardSummary({ includeUsers });
 
       // Defensive fallback
       const safeSummary = {
@@ -45,13 +49,13 @@ export default function useDashboardStats(autoLoad = true) {
         setError(err?.message || "Failed to load dashboard stats");
       }
 
-      throw err;
+      return INITIAL_STATE;
     } finally {
       if (isMountedRef.current) {
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [includeUsers]);
 
   // =========================
   // Reset (optional use)
@@ -69,7 +73,7 @@ export default function useDashboardStats(autoLoad = true) {
     isMountedRef.current = true;
 
     if (autoLoad) {
-      fetchDashboardStats();
+      void fetchDashboardStats();
     }
 
     return () => {

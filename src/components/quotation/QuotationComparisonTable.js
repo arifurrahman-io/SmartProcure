@@ -9,8 +9,13 @@ import {
 export default function QuotationComparisonTable({
   quotations = [],
   selectedId,
+  selectedQuotationId,
   onSelect,
+  onSelectQuotation,
 }) {
+  const activeId = selectedId || selectedQuotationId;
+  const handleSelect = onSelect || onSelectQuotation;
+
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       <View style={styles.wrapper}>
@@ -23,7 +28,7 @@ export default function QuotationComparisonTable({
         </View>
 
         {quotations.map((item) => {
-          const active = selectedId === item.id;
+          const active = activeId === item.id;
 
           return (
             <View key={item.id} style={styles.row}>
@@ -34,7 +39,7 @@ export default function QuotationComparisonTable({
               <View style={[styles.cell, styles.selectCell]}>
                 <TouchableOpacity
                   style={[styles.selectBtn, active && styles.activeBtn]}
-                  onPress={() => onSelect?.(item.id)}
+                  onPress={() => handleSelect?.(item.id)}
                   activeOpacity={0.85}
                 >
                   <Text
@@ -70,9 +75,9 @@ const styles = StyleSheet.create({
     minWidth: 720,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    borderRadius: 16,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   row: {
     flexDirection: "row",
@@ -105,7 +110,7 @@ const styles = StyleSheet.create({
     borderColor: "#CBD5E1",
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   activeBtn: {
     backgroundColor: "#EEF4FF",

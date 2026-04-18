@@ -22,9 +22,9 @@ export default function SearchBar({
 
 const styles = StyleSheet.create({
   container: {
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: "#fff",
+    minHeight: 50,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     paddingHorizontal: 14,
@@ -36,5 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     color: "#0F172A",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

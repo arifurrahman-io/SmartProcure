@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { Platform, View, Text, StyleSheet } from "react-native";
 
 export default function RequestMetaInfo({
   requester,
@@ -31,12 +31,24 @@ function Info({ label, value, isLast = false }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#E2E8F0",
     marginBottom: 14,
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 2,
+      },
+    }),
   },
   row: {
     paddingVertical: 10,

@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   dot: {
     width: 10,
     height: 10,
-    borderRadius: 999,
+    borderRadius: 5,
     backgroundColor: "#EF4444",
   },
 });

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View, Text, Switch } from "react-native";
+import { Platform, ScrollView, StyleSheet, View, Text, Switch } from "react-native";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -158,16 +158,28 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   switchCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#E2E8F0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 22px rgba(15, 23, 42, 0.04)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.03,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 1,
+      },
+    }),
   },
   switchTextWrap: {
     flex: 1,

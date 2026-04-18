@@ -9,18 +9,14 @@ import PendingApprovalCard from "../../components/dashboard/PendingApprovalCard"
 
 import ROUTES from "../../navigation/routes";
 import useRequests from "../../hooks/useRequests";
-import { REQUEST_STATUS } from "../../constants/requestStatus";
+import { isPendingApprovalStatus } from "../../constants/requestStatus";
 
 export default function PendingApprovalsScreen({ navigation }) {
   const { requests, isLoading, error, refreshRequests } = useRequests(true);
 
   const pendingRequests = useMemo(() => {
     return (requests || [])
-      .filter(
-        (item) =>
-          String(item.status || "").toLowerCase() ===
-          String(REQUEST_STATUS.PENDING).toLowerCase(),
-      )
+      .filter((item) => isPendingApprovalStatus(item.status))
       .map((item) => ({
         id: item.id,
         itemName: item.itemName || item.title || "Untitled Request",

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { Platform, View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function ProfileHeader({ name, email, role, campus }) {
@@ -31,20 +31,32 @@ function Tag({ text }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 2,
+      },
+    }),
   },
   avatar: {
     width: 56,
     height: 56,
-    borderRadius: 999,
-    backgroundColor: "#4F46E5",
+    borderRadius: 8,
+    backgroundColor: "#2563EB",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -72,7 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEF4FF",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 999,
+    borderRadius: 8,
   },
   tagText: {
     fontSize: 11,

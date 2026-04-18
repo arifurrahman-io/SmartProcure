@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
   logoCircle: {
     width: 74,
     height: 74,
-    borderRadius: 999,
-    backgroundColor: "#4F46E5",
+    borderRadius: 8,
+    backgroundColor: "#2563EB",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 18,
@@ -215,15 +215,22 @@ const styles = StyleSheet.create({
   },
   formCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    borderRadius: 8,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 10px 28px rgba(15, 23, 42, 0.06)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
+      },
+    }),
   },
   passwordWrap: {
     position: "relative",

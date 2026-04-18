@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
+import { Platform, TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/colors";
 
@@ -25,22 +25,29 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minHeight: 96,
-    backgroundColor: "#fff",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 14,
     justifyContent: "space-between",
     borderWidth: 1,
-    borderColor: "#EEF2F7",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 2,
+      },
+    }),
   },
   iconWrap: {
     width: 42,
     height: 42,
-    borderRadius: 12,
+    borderRadius: 8,
     backgroundColor: "#EEF4FF",
     alignItems: "center",
     justifyContent: "center",

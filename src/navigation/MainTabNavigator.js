@@ -2,11 +2,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
 import DashboardScreen from "../screens/dashboard/DashboardScreen";
+import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import RequestStackNavigator from "./RequestStackNavigator";
 import InstructionListScreen from "../screens/instruction/InstructionListScreen";
 import HistoryListScreen from "../screens/history/HistoryListScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import ROUTES from "./routes";
+import useUserRole from "../hooks/useUserRole";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,6 +35,8 @@ const getTabIcon = (routeName, focused) => {
 };
 
 export default function MainTabNavigator() {
+  const { isAdmin } = useUserRole();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -40,13 +44,16 @@ export default function MainTabNavigator() {
         tabBarActiveTintColor: "#4F46E5",
         tabBarInactiveTintColor: "#94A3B8",
         tabBarStyle: {
-          height: 64,
-          paddingBottom: 8,
+          height: 68,
+          paddingBottom: 10,
           paddingTop: 8,
+          borderTopWidth: 1,
+          borderTopColor: "#E2E8F0",
+          backgroundColor: "#FFFFFF",
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
+          fontWeight: "800",
         },
         tabBarIcon: ({ focused, color, size }) => (
           <Ionicons
@@ -59,9 +66,16 @@ export default function MainTabNavigator() {
     >
       <Tab.Screen
         name={ROUTES.DASHBOARD}
-        component={DashboardScreen}
         options={{ tabBarLabel: "Dashboard" }}
-      />
+      >
+        {(props) =>
+          isAdmin ? (
+            <AdminDashboardScreen {...props} />
+          ) : (
+            <DashboardScreen {...props} />
+          )
+        }
+      </Tab.Screen>
 
       <Tab.Screen
         name={ROUTES.REQUESTS}

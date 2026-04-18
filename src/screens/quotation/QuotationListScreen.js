@@ -15,7 +15,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 export default function QuotationListScreen({ navigation, route }) {
   const requestId = route?.params?.requestId;
 
-  const { quotations, isLoading, fetchQuotations } = useQuotations(
+  const { quotations, isLoading, error, fetchQuotations } = useQuotations(
     requestId,
     true,
   );
@@ -64,7 +64,9 @@ export default function QuotationListScreen({ navigation, route }) {
             }
           />
         )}
-        ListEmptyComponent={<EmptyState text="No quotations submitted yet" />}
+        ListEmptyComponent={
+          <EmptyState text={error || "No quotations submitted yet"} />
+        }
         contentContainerStyle={styles.content}
       />
     </ScreenWrapper>

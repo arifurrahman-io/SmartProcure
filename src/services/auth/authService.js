@@ -1,13 +1,16 @@
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
+  getAuth,
   onAuthStateChanged,
   updateProfile,
   updatePassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { auth } from "../../firebase/config";
+import { deleteApp, initializeApp } from "firebase/app";
+import { auth, firebaseConfig } from "../../firebase/config";
 
 const normalizeEmail = (email = "") => String(email).trim().toLowerCase();
 
@@ -23,6 +26,33 @@ export const loginUser = async ({ email, password }) => {
     safePassword,
   );
   return result.user;
+};
+
+export const createUserAsAdmin = async ({ email, password, displayName }) => {
+  const safeEmail = normalizeEmail(email);
+  const safePassword = normalizePassword(password);
+  const appName = `admin-member-create-${Date.now()}`;
+  const secondaryApp = initializeApp(firebaseConfig, appName);
+  const secondaryAuth = getAuth(secondaryApp);
+
+  try {
+    const result = await createUserWithEmailAndPassword(
+      secondaryAuth,
+      safeEmail,
+      safePassword,
+    );
+
+    if (displayName) {
+      await updateProfile(result.user, {
+        displayName: String(displayName).trim(),
+      });
+    }
+
+    await signOut(secondaryAuth);
+    return result.user;
+  } finally {
+    await deleteApp(secondaryApp);
+  }
 };
 
 export const resetUserPassword = async (

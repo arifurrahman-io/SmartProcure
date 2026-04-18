@@ -19,10 +19,11 @@ import ROUTES from "../../navigation/routes";
 import useDashboardStats from "../../hooks/useDashboardStats";
 import useRequests from "../../hooks/useRequests";
 import useUserRole from "../../hooks/useUserRole";
-import { REQUEST_STATUS } from "../../constants/requestStatus";
+import { isPendingApprovalStatus } from "../../constants/requestStatus";
 
 export default function AdminDashboardScreen({ navigation }) {
   const { isAdmin } = useUserRole();
+  const handleBack = navigation.canGoBack() ? () => navigation.goBack() : null;
 
   const {
     stats,
@@ -40,11 +41,7 @@ export default function AdminDashboardScreen({ navigation }) {
 
   const pendingItems = useMemo(() => {
     return (requests || [])
-      .filter(
-        (item) =>
-          String(item.status || "").toLowerCase() ===
-          String(REQUEST_STATUS.PENDING).toLowerCase(),
-      )
+      .filter((item) => isPendingApprovalStatus(item.status))
       .slice(0, 5)
       .map((item) => ({
         id: item.id,
@@ -62,7 +59,7 @@ export default function AdminDashboardScreen({ navigation }) {
   if (!isAdmin) {
     return (
       <ScreenWrapper>
-        <AppHeader title="Admin Dashboard" onBack={() => navigation.goBack()} />
+        <AppHeader title="Admin Dashboard" onBack={handleBack} />
         <EmptyState text="Access denied. Admin permission is required." />
       </ScreenWrapper>
     );
@@ -71,7 +68,7 @@ export default function AdminDashboardScreen({ navigation }) {
   if (isLoading && (!requests || requests.length === 0)) {
     return (
       <ScreenWrapper>
-        <AppHeader title="Admin Dashboard" onBack={() => navigation.goBack()} />
+        <AppHeader title="Admin Dashboard" onBack={handleBack} />
         <AppLoader />
       </ScreenWrapper>
     );
@@ -79,7 +76,7 @@ export default function AdminDashboardScreen({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <AppHeader title="Admin Dashboard" onBack={() => navigation.goBack()} />
+      <AppHeader title="Admin Dashboard" onBack={handleBack} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

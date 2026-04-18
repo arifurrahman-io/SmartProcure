@@ -5,10 +5,14 @@ export default function ApproveQuotationModal({
   visible,
   vendorName,
   amount,
+  quotation,
   onClose,
   onConfirm,
   loading = false,
 }) {
+  const safeVendorName = vendorName || quotation?.vendorName;
+  const safeAmount = amount || quotation?.amount;
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
@@ -21,10 +25,10 @@ export default function ApproveQuotationModal({
 
           <View style={styles.summaryBox}>
             <Text style={styles.summaryLabel}>Vendor</Text>
-            <Text style={styles.summaryValue}>{vendorName || "-"}</Text>
+            <Text style={styles.summaryValue}>{safeVendorName || "-"}</Text>
 
             <Text style={[styles.summaryLabel, { marginTop: 12 }]}>Amount</Text>
-            <Text style={styles.summaryValue}>{amount || "-"}</Text>
+            <Text style={styles.summaryValue}>{safeAmount || "-"}</Text>
           </View>
 
           <View style={styles.actionRow}>
@@ -54,8 +58,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modal: {
-    backgroundColor: "#fff",
-    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 18,
   },
   title: {
@@ -72,7 +76,7 @@ const styles = StyleSheet.create({
   summaryBox: {
     marginTop: 16,
     backgroundColor: "#F8FAFC",
-    borderRadius: 16,
+    borderRadius: 8,
     padding: 14,
   },
   summaryLabel: {

@@ -26,13 +26,16 @@ export default function AppButton({ title, onPress, loading = false, style }) {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.primary,
-    paddingVertical: 14,
-    borderRadius: 12,
+    minHeight: 48,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
   },
   text: {
     color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
+    fontWeight: "800",
+    fontSize: 15,
   },
 });

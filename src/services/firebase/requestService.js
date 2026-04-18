@@ -1,73 +1,132 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
+  onSnapshot,
   orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import COLLECTIONS from "../../firebase/collections";
 
+const requestsRef = collection(db, COLLECTIONS.REQUESTS);
+
+const mapSnapshotDoc = (snapshot) => ({
+  id: snapshot.id,
+  ...snapshot.data(),
+});
+
+const buildRequestsQuery = (filters = {}) => {
+  const constraints = [];
+
+  if (filters.authorId) {
+    constraints.push(where("authorId", "==", filters.authorId));
+  }
+
+  if (filters.campus) {
+    constraints.push(where("campus", "==", filters.campus));
+  }
+
+  if (filters.status) {
+    constraints.push(where("status", "==", filters.status));
+  }
+
+  constraints.push(orderBy("createdAt", "desc"));
+
+  return query(requestsRef, ...constraints);
+};
+
 export const createRequest = async (payload) => {
-  const ref = collection(db, COLLECTIONS.REQUESTS);
-  const result = await addDoc(ref, {
+  const result = await addDoc(requestsRef, {
     ...payload,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 
   return result.id;
 };
 
-export const getAllRequests = async () => {
-  const ref = collection(db, COLLECTIONS.REQUESTS);
-  const q = query(ref, orderBy("createdAt", "desc"));
+export const getAllRequests = async (filters = {}) => {
+  const q = buildRequestsQuery(filters);
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((item) => ({
-    id: item.id,
-    ...item.data(),
-  }));
+  return snapshot.docs.map(mapSnapshotDoc);
 };
 
 export const getRequestById = async (requestId) => {
   const ref = doc(db, COLLECTIONS.REQUESTS, requestId);
   const snapshot = await getDoc(ref);
 
-  if (!snapshot.exists()) return null;
+  if (!snapshot.exists()) {
+    return null;
+  }
 
-  return {
-    id: snapshot.id,
-    ...snapshot.data(),
-  };
+  return mapSnapshotDoc(snapshot);
 };
 
 export const getRequestsByUser = async (userId) => {
-  const ref = collection(db, COLLECTIONS.REQUESTS);
-  const q = query(
-    ref,
-    where("authorId", "==", userId),
-    orderBy("createdAt", "desc"),
-  );
-  const snapshot = await getDocs(q);
+  return getAllRequests({ authorId: userId });
+};
 
-  return snapshot.docs.map((item) => ({
-    id: item.id,
-    ...item.data(),
-  }));
+export const subscribeToAllRequests = (callback, filters = {}, onError) => {
+  const q = buildRequestsQuery(filters);
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      callback(snapshot.docs.map(mapSnapshotDoc));
+    },
+    (error) => {
+      if (onError) {
+        onError(error);
+      } else {
+        console.error("subscribeToAllRequests error:", error);
+      }
+    },
+  );
+};
+
+export const subscribeToRequestById = (requestId, callback, onError) => {
+  const ref = doc(db, COLLECTIONS.REQUESTS, requestId);
+
+  return onSnapshot(
+    ref,
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        callback(null);
+        return;
+      }
+
+      callback(mapSnapshotDoc(snapshot));
+    },
+    (error) => {
+      if (onError) {
+        onError(error);
+      } else {
+        console.error("subscribeToRequestById error:", error);
+      }
+    },
+  );
+};
+
+export const subscribeToRequestsByUser = (userId, callback, onError) => {
+  return subscribeToAllRequests(callback, { authorId: userId }, onError);
 };
 
 export const updateRequest = async (requestId, updates) => {
   const ref = doc(db, COLLECTIONS.REQUESTS, requestId);
+
   await updateDoc(ref, {
     ...updates,
-    updatedAt: new Date().toISOString(),
+    updatedAt: serverTimestamp(),
   });
+
   return true;
 };
 

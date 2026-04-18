@@ -19,7 +19,7 @@ import AppLoader from "../../components/common/AppLoader";
 import ROUTES from "../../navigation/routes";
 import useDashboardStats from "../../hooks/useDashboardStats";
 import useRequests from "../../hooks/useRequests";
-import { REQUEST_STATUS } from "../../constants/requestStatus";
+import { isPendingApprovalStatus } from "../../constants/requestStatus";
 import { formatDateTime } from "../../utils/formatDate";
 
 export default function DashboardScreen({ navigation }) {
@@ -31,19 +31,15 @@ export default function DashboardScreen({ navigation }) {
 
   const {
     requests,
-    isLoading: requestsLoading,
+    loading: requestsLoading,
     refreshRequests,
   } = useRequests(true);
 
-  const isLoading = statsLoading || requestsLoading;
+  const isLoading = Boolean(statsLoading || requestsLoading);
 
   const pendingItems = useMemo(() => {
     return (requests || [])
-      .filter(
-        (item) =>
-          String(item.status || "").toLowerCase() ===
-          String(REQUEST_STATUS.PENDING).toLowerCase(),
-      )
+      .filter((item) => isPendingApprovalStatus(item.status))
       .slice(0, 5)
       .map((item) => ({
         id: item.id,

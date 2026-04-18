@@ -3,12 +3,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoadingScreen from "../screens/auth/LoadingScreen";
 import MainTabNavigator from "./MainTabNavigator";
 import AuthNavigator from "./AuthNavigator";
-import AdminStackNavigator from "./AdminStackNavigator";
 
 import NotificationsScreen from "../screens/notification/NotificationsScreen";
 import SettingsScreen from "../screens/profile/SettingsScreen";
 import InstructionDetailsScreen from "../screens/instruction/InstructionDetailsScreen";
 import AuditTrailScreen from "../screens/history/AuditTrailScreen";
+
+import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
+import PendingApprovalsScreen from "../screens/admin/PendingApprovalsScreen";
+import UserManagementScreen from "../screens/admin/UserManagementScreen";
+import ReportsScreen from "../screens/admin/ReportsScreen";
 
 import ROUTES from "./routes";
 import useAuthStore from "../store/useAuthStore";
@@ -33,8 +37,6 @@ export default function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!isAuthenticated ? (
         <Stack.Screen name={ROUTES.AUTH_ROOT} component={AuthNavigator} />
-      ) : isAdmin ? (
-        <Stack.Screen name={ROUTES.ADMIN_ROOT} component={AdminStackNavigator} />
       ) : (
         <Stack.Screen name={ROUTES.MAIN_TABS} component={MainTabNavigator} />
       )}
@@ -52,6 +54,24 @@ export default function AppNavigator() {
       />
 
       <Stack.Screen name={ROUTES.AUDIT_TRAIL} component={AuditTrailScreen} />
+
+      {isAdmin ? (
+        <>
+          <Stack.Screen
+            name={ROUTES.ADMIN_DASHBOARD}
+            component={AdminDashboardScreen}
+          />
+          <Stack.Screen
+            name={ROUTES.PENDING_APPROVALS}
+            component={PendingApprovalsScreen}
+          />
+          <Stack.Screen
+            name={ROUTES.USER_MANAGEMENT}
+            component={UserManagementScreen}
+          />
+          <Stack.Screen name={ROUTES.REPORTS} component={ReportsScreen} />
+        </>
+      ) : null}
     </Stack.Navigator>
   );
 }

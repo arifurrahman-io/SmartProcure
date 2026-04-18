@@ -1,91 +1,141 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createRequest,
   getAllRequests,
+  subscribeToAllRequests,
 } from "../services/firebase/requestService";
-import useRequestStore from "../store/useRequestStore";
 import useAuthStore from "../store/useAuthStore";
 
-export default function useRequests(autoLoad = true) {
-  const {
-    requests,
-    isLoading,
-    error,
-    setRequests,
-    setIsLoading,
-    setError,
-    addRequest,
-    resetRequests,
-  } = useRequestStore();
+const INITIAL_STATE = {
+  requests: [],
+  loading: false,
+  error: null,
+};
 
-  const profile = useAuthStore((state) => state.profile);
+export default function useRequests(autoLoad = true, options = {}) {
+  const { user, profile } = useAuthStore();
 
-  const fetchRequests = useCallback(async () => {
+  const [requests, setRequests] = useState(INITIAL_STATE.requests);
+  const [loading, setLoading] = useState(autoLoad);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(INITIAL_STATE.error);
+
+  const filters = useMemo(() => {
+    const role = profile?.role;
+    const campus = profile?.campus;
+    const userId = profile?.id || profile?.uid || user?.uid;
+
+    if (options.filters) {
+      return options.filters;
+    }
+
+    if (role === "admin" || role === "head") {
+      return {};
+    }
+
+    if (role === "committee" || role === "purchase_committee") {
+      return campus ? { campus } : {};
+    }
+
+    if (role === "staff") {
+      return userId ? { authorId: userId } : {};
+    }
+
+    return {};
+  }, [options.filters, profile, user]);
+
+  const loadRequests = useCallback(async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
 
-      const data = await getAllRequests();
+      const data = await getAllRequests(filters);
       setRequests(data);
+
+      return data;
     } catch (err) {
-      console.log("fetchRequests error:", err);
-      setError(err?.message || "Failed to load requests");
+      const message = err?.message || "Failed to load requests.";
+      setError(message);
+      return [];
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [setRequests, setIsLoading, setError]);
+  }, [filters]);
 
   const refreshRequests = useCallback(async () => {
-    resetRequests();
-    await fetchRequests();
-  }, [fetchRequests, resetRequests]);
+    return loadRequests();
+  }, [loadRequests]);
 
   const submitRequest = useCallback(
     async (payload) => {
       try {
-        setIsLoading(true);
+        setSubmitting(true);
         setError(null);
+
+        const userId = user?.id || user?.uid;
 
         const requestPayload = {
           ...payload,
-          authorId: profile?.id || profile?.uid || null,
-          authorName: profile?.name || profile?.displayName || "Unknown User",
-          authorEmail: profile?.email || "",
-          status: payload.status || "Pending",
+          authorId: payload.authorId || userId || null,
+          authorName:
+            payload.authorName ||
+            profile?.name ||
+            user?.displayName ||
+            user?.email ||
+            "Unknown User",
+          campus: payload.campus || profile?.campus || null,
+          status: payload.status || "pending",
         };
 
-        const id = await createRequest(requestPayload);
-
-        const createdRequest = {
-          id,
-          ...requestPayload,
-        };
-
-        addRequest(createdRequest);
-        return createdRequest;
+        const requestId = await createRequest(requestPayload);
+        return { success: true, requestId };
       } catch (err) {
-        console.log("submitRequest error:", err);
-        setError(err?.message || "Failed to create request");
-        throw err;
+        const message = err?.message || "Failed to submit request.";
+        setError(message);
+        return { success: false, error: message };
       } finally {
-        setIsLoading(false);
+        setSubmitting(false);
       }
     },
-    [profile, addRequest, setIsLoading, setError],
+    [profile, user],
   );
 
   useEffect(() => {
-    if (autoLoad) {
-      fetchRequests();
+    if (!autoLoad) {
+      return;
     }
-  }, [autoLoad, fetchRequests]);
+
+    setLoading(true);
+    setError(null);
+
+    const unsubscribe = subscribeToAllRequests(
+      (data) => {
+        setRequests(data);
+        setLoading(false);
+      },
+      filters,
+      (err) => {
+        setError(err?.message || "Failed to subscribe to requests.");
+        setLoading(false);
+      },
+    );
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [autoLoad, filters]);
 
   return {
     requests,
-    isLoading,
+    loading,
+    isLoading: loading,
+    submitting,
     error,
-    fetchRequests,
     refreshRequests,
+    loadRequests,
     submitRequest,
+    setRequests,
   };
 }

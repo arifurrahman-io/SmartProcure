@@ -6,9 +6,45 @@ import {
   resetUserPassword,
   subscribeToAuthChanges,
 } from "../services/auth/authService";
-import { getUserById } from "../services/firebase/userService";
+import {
+  createUserProfile,
+  getUserById,
+} from "../services/firebase/userService";
 import { getErrorMessage } from "../utils/errorHandler";
 import { logError, logInfo } from "../utils/logger";
+
+const isProfileDisabled = (profile) => {
+  if (!profile) return false;
+
+  return (
+    profile.disabled === true ||
+    String(profile.status || "").toLowerCase() === "disabled" ||
+    String(profile.status || "").toLowerCase() === "deleted"
+  );
+};
+
+const buildFallbackProfile = (firebaseUser) => ({
+  id: firebaseUser.uid,
+  uid: firebaseUser.uid,
+  email: firebaseUser.email || "",
+  name: firebaseUser.displayName || "User",
+  role: "staff",
+  status: "active",
+  disabled: false,
+});
+
+const getOrCreateUserProfile = async (firebaseUser) => {
+  const fetchedProfile = await getUserById(firebaseUser.uid);
+
+  if (fetchedProfile) {
+    return fetchedProfile;
+  }
+
+  const fallbackProfile = buildFallbackProfile(firebaseUser);
+  await createUserProfile(firebaseUser.uid, fallbackProfile);
+
+  return fallbackProfile;
+};
 
 const useAuthStore = create((set, get) => ({
   user: null,
@@ -58,15 +94,32 @@ const useAuthStore = create((set, get) => ({
 
         logInfo("Auth state changed: logged in", firebaseUser.uid);
 
-        const profile = await getUserById(firebaseUser.uid);
+        const profile = await getOrCreateUserProfile(firebaseUser);
+
+        if (isProfileDisabled(profile)) {
+          logInfo("Blocked disabled user", firebaseUser.uid);
+
+          try {
+            await logoutUser();
+          } catch (logoutError) {
+            logError("Forced logout failed for disabled user:", logoutError);
+          }
+
+          set({
+            user: null,
+            profile: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error:
+              "Your account has been disabled. Please contact the administrator.",
+          });
+
+          return;
+        }
+
         get().setAuthState({
           user: firebaseUser,
-          profile: profile || {
-            id: firebaseUser.uid,
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            name: firebaseUser.displayName || "User",
-          },
+          profile,
         });
       } catch (error) {
         logError("initializeAuth error:", error);
@@ -93,6 +146,31 @@ const useAuthStore = create((set, get) => ({
 
     try {
       const user = await loginUser(credentials);
+
+      const profile = await getOrCreateUserProfile(user);
+
+      if (isProfileDisabled(profile)) {
+        await logoutUser();
+
+        const message =
+          "Your account has been disabled. Please contact the administrator.";
+
+        set({
+          user: null,
+          profile: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: message,
+        });
+
+        throw new Error(message);
+      }
+
+      get().setAuthState({
+        user,
+        profile,
+      });
+
       return user;
     } catch (error) {
       const message = getErrorMessage(error);

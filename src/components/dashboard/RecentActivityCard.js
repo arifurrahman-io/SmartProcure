@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { Platform, View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RecentActivityCard({
@@ -33,17 +33,29 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 8px 20px rgba(15, 23, 42, 0.04)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.03,
+        shadowRadius: 7,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 1,
+      },
+    }),
   },
   iconWrap: {
     width: 38,
     height: 38,
-    borderRadius: 12,
+    borderRadius: 8,
     backgroundColor: "#EFF6FF",
     alignItems: "center",
     justifyContent: "center",

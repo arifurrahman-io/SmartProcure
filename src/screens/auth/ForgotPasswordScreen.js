@@ -92,10 +92,22 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    borderRadius: 8,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#EEF2F7",
+    borderColor: "#E2E8F0",
+    ...Platform.select({
+      web: {
+        boxShadow: "0 10px 28px rgba(15, 23, 42, 0.06)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
+      },
+    }),
   },
   title: {
     fontSize: 24,

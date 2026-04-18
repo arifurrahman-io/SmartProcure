@@ -8,7 +8,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import COLLECTIONS from "../../firebase/collections";
@@ -39,17 +38,23 @@ export const getQuotationById = async (quotationId) => {
 
 export const getQuotationsByRequest = async (requestId) => {
   const ref = collection(db, COLLECTIONS.QUOTATIONS);
-  const q = query(
-    ref,
-    where("requestId", "==", requestId),
-    orderBy("createdAt", "desc"),
-  );
+  const q = query(ref, where("requestId", "==", requestId));
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((item) => ({
-    id: item.id,
-    ...item.data(),
-  }));
+  return snapshot.docs
+    .map((item) => ({
+      id: item.id,
+      ...item.data(),
+    }))
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+};
+
+export const getQuotationCountByRequest = async (requestId) => {
+  const ref = collection(db, COLLECTIONS.QUOTATIONS);
+  const q = query(ref, where("requestId", "==", requestId));
+  const snapshot = await getDocs(q);
+
+  return snapshot.size;
 };
 
 export const updateQuotation = async (quotationId, updates) => {

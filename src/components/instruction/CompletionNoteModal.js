@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modal: {
-    backgroundColor: "#fff",
-    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
     padding: 18,
   },
   title: {

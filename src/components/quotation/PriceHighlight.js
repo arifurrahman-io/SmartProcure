@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEF4FF",
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 8,
     alignItems: "flex-end",
     minWidth: 110,
   },
