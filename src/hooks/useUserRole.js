@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import useAuthStore from "../store/useAuthStore";
+import { isAdminRole, isMemberRole, normalizeRole } from "../utils/roleHelpers";
 
 export default function useUserRole() {
   const profile = useAuthStore((state) => state.profile);
@@ -7,18 +8,19 @@ export default function useUserRole() {
   const role = profile?.role || null;
 
   const permissions = useMemo(() => {
-    const normalizedRole = String(role || "").toLowerCase();
+    const normalizedRole = normalizeRole(role);
+    const isAdmin = isAdminRole(normalizedRole);
+    const isMember = isMemberRole(normalizedRole);
 
     return {
       role,
-      isAdmin: normalizedRole === "admin",
-      isMember: normalizedRole === "member",
-      canApproveQuotation: normalizedRole === "admin",
-      canManageUsers: normalizedRole === "admin",
-      canCreateRequest:
-        normalizedRole === "admin" || normalizedRole === "member",
-      canSubmitQuotation:
-        normalizedRole === "admin" || normalizedRole === "member",
+      normalizedRole,
+      isAdmin,
+      isMember,
+      canApproveQuotation: isAdmin,
+      canManageUsers: isAdmin,
+      canCreateRequest: isAdmin || isMember,
+      canSubmitQuotation: isAdmin || isMember,
     };
   }, [role]);
 

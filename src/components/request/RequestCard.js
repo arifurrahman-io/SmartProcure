@@ -10,12 +10,15 @@ export default function RequestCard({
   campus,
   shift,
   requester,
-  date,
+  createdAt,
   status,
   urgency,
   quotationCount = 0,
   onPress,
 }) {
+  const creatorName = requester || "Unknown";
+  const createdTime = createdAt || "-";
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -39,13 +42,15 @@ export default function RequestCard({
 
       <View style={styles.infoRow}>
         <Ionicons name="person-outline" size={14} color="#64748B" />
-        <Text style={styles.infoText}>{requester}</Text>
+        <Text style={styles.infoText} numberOfLines={1}>
+          Created by {creatorName}
+        </Text>
       </View>
 
       <View style={styles.bottomRow}>
         <View style={styles.infoRow}>
           <Ionicons name="calendar-outline" size={14} color="#64748B" />
-          <Text style={styles.infoText}>{date}</Text>
+          <Text style={styles.infoText}>Created {createdTime}</Text>
         </View>
 
         <View style={styles.infoRow}>
@@ -61,20 +66,20 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 14,
+    padding: 13,
+    marginBottom: 11,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: "#DCE4EE",
     ...Platform.select({
       web: {
-        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+        boxShadow: "0 6px 18px rgba(15, 23, 42, 0.045)",
       },
       default: {
         shadowColor: "#000",
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
-        elevation: 2,
+        shadowOpacity: 0.035,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
       },
     }),
   },
@@ -88,43 +93,45 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "800",
     color: "#0F172A",
   },
   category: {
-    marginTop: 4,
-    fontSize: 12,
+    marginTop: 3,
+    fontSize: 11,
+    fontWeight: "700",
     color: "#64748B",
   },
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
-    gap: 8,
+    marginTop: 9,
+    gap: 6,
     flexWrap: "wrap",
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 9,
   },
   infoText: {
     marginLeft: 6,
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: "600",
     color: "#64748B",
   },
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 2,
+    marginTop: 0,
     flexWrap: "wrap",
     gap: 8,
   },
   quoteText: {
     marginLeft: 6,
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "800",
     color: "#2563EB",
   },
 });

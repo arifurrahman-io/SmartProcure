@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.arifurrahman.expo.SmartProcure"
     },
     "web": {
       "favicon": "./assets/icons/favicon.png"

@@ -1,5 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DashboardScreen from "../screens/dashboard/DashboardScreen";
 import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
@@ -9,6 +11,7 @@ import HistoryListScreen from "../screens/history/HistoryListScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import ROUTES from "./routes";
 import useUserRole from "../hooks/useUserRole";
+import useAppTheme from "../hooks/useAppTheme";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,24 +39,32 @@ const getTabIcon = (routeName, focused) => {
 
 export default function MainTabNavigator() {
   const { isAdmin } = useUserRole();
+  const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, Platform.OS === "android" ? 16 : 0);
+  const tabBarHeight = 58 + bottomInset;
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: "#4F46E5",
-        tabBarInactiveTintColor: "#94A3B8",
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          height: 68,
-          paddingBottom: 10,
+          height: tabBarHeight,
+          paddingBottom: Math.max(bottomInset, 10),
           paddingTop: 8,
           borderTopWidth: 1,
-          borderTopColor: "#E2E8F0",
-          backgroundColor: "#FFFFFF",
+          borderTopColor: theme.colors.border,
+          backgroundColor: theme.colors.card,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "800",
+        },
+        tabBarItemStyle: {
+          paddingBottom: 2,
         },
         tabBarIcon: ({ focused, color, size }) => (
           <Ionicons

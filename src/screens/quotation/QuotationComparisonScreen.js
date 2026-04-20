@@ -15,7 +15,9 @@ import VendorInfoCard from "../../components/quotation/VendorInfoCard";
 import QuotationComparisonTable from "../../components/quotation/QuotationComparisonTable";
 import ApproveQuotationModal from "../../components/quotation/ApproveQuotationModal";
 import useQuotations from "../../hooks/useQuotations";
+import useUserRole from "../../hooks/useUserRole";
 import ROUTES from "../../navigation/routes";
+import { formatDateTime } from "../../utils/formatDate";
 
 const normalizeAmount = (value) => {
   const raw = String(value ?? "").replace(/[^\d.]/g, "");
@@ -26,6 +28,7 @@ const normalizeAmount = (value) => {
 export default function QuotationComparisonScreen({ navigation, route }) {
   const requestId = route?.params?.requestId;
   const initialSelectedQuotationId = route?.params?.selectedQuotationId || null;
+  const { canApproveQuotation } = useUserRole();
 
   const {
     quotations,
@@ -62,7 +65,6 @@ export default function QuotationComparisonScreen({ navigation, route }) {
       deliveryTime: item.deliveryTime || "-",
       specification: item.specification || "-",
       warranty: item.warranty || "-",
-      note: item.note || item.remarks || "-",
       isApproved: !!item.isApproved,
       isSelected: item.id === selectedQuotationId,
     }));
@@ -84,10 +86,16 @@ export default function QuotationComparisonScreen({ navigation, route }) {
   };
 
   const handleSelectQuotation = (quotationId) => {
+    if (!canApproveQuotation) return;
     setSelectedQuotationId(quotationId);
   };
 
   const handleApprovePress = () => {
+    if (!canApproveQuotation) {
+      Alert.alert("View only", "Only admins can approve quotations.");
+      return;
+    }
+
     if (!selectedQuotationId) {
       Alert.alert("Select quotation", "Please select a quotation to approve.");
       return;
@@ -193,14 +201,17 @@ export default function QuotationComparisonScreen({ navigation, route }) {
             <VendorInfoCard
               key={item.id}
               vendorName={item.vendorName || "Unknown Vendor"}
-              vendorContact={item.vendorContact || item.vendorPhone || "-"}
+              vendorContact={item.vendorContact || "-"}
               specification={item.specification || "-"}
               amount={item.amount || "-"}
               deliveryTime={item.deliveryTime || "-"}
-              address={item.address || item.vendorAddress || "-"}
-              isSelected={item.id === selectedQuotationId}
+              notes={item.notes || ""}
+              submittedBy={item.submittedBy || "Unknown"}
+              createdAt={formatDateTime(item.createdAt)}
+              isSelected={canApproveQuotation && item.id === selectedQuotationId}
               isApproved={!!item.isApproved}
               onPress={() => handleSelectQuotation(item.id)}
+              disabled={!canApproveQuotation}
             />
           ))}
         </View>
@@ -210,6 +221,7 @@ export default function QuotationComparisonScreen({ navigation, route }) {
             quotations={comparisonRows}
             selectedQuotationId={selectedQuotationId}
             onSelectQuotation={handleSelectQuotation}
+            canSelect={canApproveQuotation}
           />
         </View>
 
@@ -224,22 +236,26 @@ export default function QuotationComparisonScreen({ navigation, route }) {
             style={styles.secondaryButton}
           />
 
-          <AppButton
-            title={isApproving ? "Approving..." : "Approve Selected Quotation"}
-            onPress={handleApprovePress}
-            loading={isApproving}
-            disabled={!selectedQuotationId || isApproving}
-          />
+          {canApproveQuotation ? (
+            <AppButton
+              title={isApproving ? "Approving..." : "Approve Selected Quotation"}
+              onPress={handleApprovePress}
+              loading={isApproving}
+              disabled={!selectedQuotationId || isApproving}
+            />
+          ) : null}
         </View>
       </ScrollView>
 
-      <ApproveQuotationModal
-        visible={approveVisible}
-        onClose={() => setApproveVisible(false)}
-        onConfirm={handleApproveConfirm}
-        loading={isApproving}
-        quotation={selectedQuotation}
-      />
+      {canApproveQuotation ? (
+        <ApproveQuotationModal
+          visible={approveVisible}
+          onClose={() => setApproveVisible(false)}
+          onConfirm={handleApproveConfirm}
+          loading={isApproving}
+          quotation={selectedQuotation}
+        />
+      ) : null}
     </ScreenWrapper>
   );
 }

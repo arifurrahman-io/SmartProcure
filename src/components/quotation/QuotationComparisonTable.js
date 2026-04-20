@@ -12,19 +12,20 @@ export default function QuotationComparisonTable({
   selectedQuotationId,
   onSelect,
   onSelectQuotation,
+  canSelect = true,
 }) {
   const activeId = selectedId || selectedQuotationId;
   const handleSelect = onSelect || onSelectQuotation;
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <View style={styles.wrapper}>
+      <View style={[styles.wrapper, !canSelect && styles.viewOnlyWrapper]}>
         <View style={[styles.row, styles.headerRow]}>
           <Cell text="Vendor" header />
           <Cell text="Amount" header />
           <Cell text="Delivery" header />
           <Cell text="Warranty" header />
-          <Cell text="Select" header />
+          {canSelect ? <Cell text="Select" header /> : null}
         </View>
 
         {quotations.map((item) => {
@@ -36,19 +37,21 @@ export default function QuotationComparisonTable({
               <Cell text={item.amount} />
               <Cell text={item.deliveryTime} />
               <Cell text={item.warranty} />
-              <View style={[styles.cell, styles.selectCell]}>
-                <TouchableOpacity
-                  style={[styles.selectBtn, active && styles.activeBtn]}
-                  onPress={() => handleSelect?.(item.id)}
-                  activeOpacity={0.85}
-                >
-                  <Text
-                    style={[styles.selectText, active && styles.activeText]}
+              {canSelect ? (
+                <View style={[styles.cell, styles.selectCell]}>
+                  <TouchableOpacity
+                    style={[styles.selectBtn, active && styles.activeBtn]}
+                    onPress={() => handleSelect?.(item.id)}
+                    activeOpacity={0.85}
                   >
-                    {active ? "Selected" : "Choose"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                    <Text
+                      style={[styles.selectText, active && styles.activeText]}
+                    >
+                      {active ? "Selected" : "Choose"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
             </View>
           );
         })}
@@ -78,6 +81,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#FFFFFF",
+  },
+  viewOnlyWrapper: {
+    minWidth: 576,
   },
   row: {
     flexDirection: "row",

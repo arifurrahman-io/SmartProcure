@@ -35,19 +35,12 @@ const linking = {
         },
       },
 
-      [ROUTES.ADMIN_ROOT]: {
-        screens: {
-          [ROUTES.ADMIN_DASHBOARD]: "admin",
-          [ROUTES.PENDING_APPROVALS]: "admin/pending-approvals",
-          [ROUTES.USER_MANAGEMENT]: "admin/users",
-          [ROUTES.REPORTS]: "admin/reports",
-          [ROUTES.REQUEST_DETAILS]: "admin/request/:requestId",
-          [ROUTES.INSTRUCTION_DETAILS]: "admin/instruction/:instructionId",
-        },
-      },
-
       [ROUTES.NOTIFICATIONS]: "notifications",
       [ROUTES.SETTINGS]: "settings",
+      [ROUTES.ADMIN_DASHBOARD]: "admin",
+      [ROUTES.PENDING_APPROVALS]: "PendingApprovals",
+      [ROUTES.USER_MANAGEMENT]: "admin/users",
+      [ROUTES.REPORTS]: "admin/reports",
       [ROUTES.INSTRUCTION_DETAILS]: "instructions/:instructionId",
       [ROUTES.AUDIT_TRAIL]: "audit/:historyId",
     },

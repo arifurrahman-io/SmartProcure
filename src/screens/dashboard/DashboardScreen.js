@@ -21,6 +21,7 @@ import useDashboardStats from "../../hooks/useDashboardStats";
 import useRequests from "../../hooks/useRequests";
 import { isPendingApprovalStatus } from "../../constants/requestStatus";
 import { formatDateTime } from "../../utils/formatDate";
+import { getRequestAuthor } from "../../utils/requestHelpers";
 
 export default function DashboardScreen({ navigation }) {
   const {
@@ -41,13 +42,19 @@ export default function DashboardScreen({ navigation }) {
     return (requests || [])
       .filter((item) => isPendingApprovalStatus(item.status))
       .slice(0, 5)
-      .map((item) => ({
-        id: item.id,
-        itemName: item.itemName || item.title || "Untitled Request",
-        campus: item.campus || "-",
-        shift: item.shift || "-",
-        quotationCount: item.quotationCount || 0,
-      }));
+      .map((item) => {
+        const author = getRequestAuthor(item) || {};
+
+        return {
+          id: item.id,
+          itemName: item.itemName || item.title || "Untitled Request",
+          campus: item.campus || "-",
+          shift: item.shift || "-",
+          requester: author.name || "Unknown",
+          createdAt: formatDateTime(item.createdAt),
+          quotationCount: item.quotationCount || 0,
+        };
+      });
   }, [requests]);
 
   const recentActivities = useMemo(() => {
@@ -166,6 +173,8 @@ export default function DashboardScreen({ navigation }) {
               itemName={item.itemName}
               campus={item.campus}
               shift={item.shift}
+              requester={item.requester}
+              createdAt={item.createdAt}
               quotationCount={item.quotationCount}
               onPress={() =>
                 navigation.navigate(ROUTES.REQUESTS, {

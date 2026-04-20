@@ -24,7 +24,6 @@ const buildInitialForm = () => ({
   shift: "",
   neededBy: "",
   reason: "",
-  description: "",
 });
 
 export default function EditRequestScreen({ navigation, route }) {
@@ -38,12 +37,7 @@ export default function EditRequestScreen({ navigation, route }) {
 
   const currentUserId = profile?.id || profile?.uid || null;
 
-  const requestAuthorId =
-    request?.authorId ||
-    request?.createdById ||
-    request?.userId ||
-    request?.requestedById ||
-    null;
+  const requestAuthorId = request?.authorId || null;
 
   const isCreator =
     requestAuthorId && currentUserId
@@ -75,12 +69,11 @@ export default function EditRequestScreen({ navigation, route }) {
           : request.budget !== undefined && request.budget !== null
             ? String(request.budget)
             : "",
-      urgency: request.urgency || request.priority || "Medium",
+      urgency: request.urgency || "Medium",
       campus: request.campus || "",
       shift: request.shift || "",
       neededBy: request.neededBy || "",
       reason: request.reason || "",
-      description: request.description || "",
     });
   }, [request]);
 
@@ -107,8 +100,8 @@ export default function EditRequestScreen({ navigation, route }) {
       return false;
     }
 
-    if (!form.reason.trim() && !form.description.trim()) {
-      Alert.alert("Missing field", "Please enter reason or description.");
+    if (!form.reason.trim()) {
+      Alert.alert("Missing field", "Please enter reason.");
       return false;
     }
 
@@ -141,7 +134,6 @@ export default function EditRequestScreen({ navigation, route }) {
       shift: form.shift.trim(),
       neededBy: form.neededBy,
       reason: form.reason.trim(),
-      description: form.description.trim(),
     };
 
     const result = await updateRequest(payload);
@@ -282,14 +274,6 @@ export default function EditRequestScreen({ navigation, route }) {
           value={form.reason}
           onChangeText={(value) => handleChange("reason", value)}
           placeholder="Enter reason"
-          multiline
-        />
-
-        <AppInput
-          label="Description"
-          value={form.description}
-          onChangeText={(value) => handleChange("description", value)}
-          placeholder="Enter description"
           multiline
         />
 

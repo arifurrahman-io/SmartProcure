@@ -30,10 +30,13 @@ export default function QuotationCard({
   warranty,
   notes,
   submittedBy,
-  submittedAt,
+  createdAt,
   isApproved = false,
   onPress,
 }) {
+  const creatorName = submittedBy || "Unknown";
+  const createdTime = createdAt || "-";
+
   return (
     <TouchableOpacity
       style={[styles.card, isApproved && styles.approvedCard]}
@@ -55,7 +58,7 @@ export default function QuotationCard({
             {vendorName || "Unknown Vendor"}
           </Text>
           <Text style={styles.vendorMeta} numberOfLines={1}>
-            Submitted by {submittedBy || "Unknown"}
+            Created by {creatorName}
           </Text>
         </View>
 
@@ -88,7 +91,7 @@ export default function QuotationCard({
       <View style={styles.bottomRow}>
         <View style={styles.metaRow}>
           <Ionicons name="calendar-outline" size={14} color="#94A3B8" />
-          <Text style={styles.metaText}>{submittedAt || "-"}</Text>
+          <Text style={styles.metaText}>Created {createdTime}</Text>
         </View>
         <View style={styles.openHint}>
           <Text style={styles.openHintText}>Review</Text>
@@ -105,20 +108,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 14,
+    padding: 13,
+    marginBottom: 11,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: "#DCE4EE",
     ...Platform.select({
       web: {
-        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
+        boxShadow: "0 6px 18px rgba(15, 23, 42, 0.045)",
       },
       default: {
         shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 2,
+        shadowOpacity: 0.035,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
       },
     }),
   },
@@ -138,22 +141,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 10,
   },
   vendorWrap: {
     flex: 1,
     minWidth: 0,
   },
   vendorName: {
-    marginTop: 6,
-    fontSize: 17,
+    marginTop: 4,
+    fontSize: 15,
     fontWeight: "800",
     color: "#0F172A",
   },
   vendorMeta: {
-    marginTop: 4,
-    fontSize: 12,
-    fontWeight: "600",
+    marginTop: 3,
+    fontSize: 11,
+    fontWeight: "700",
     color: "#64748B",
   },
   approvedBadge: {
@@ -161,45 +164,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#ECFDF5",
     borderWidth: 1,
     borderColor: "#BBF7D0",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
     borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
   },
   approvedText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     color: "#047857",
   },
   priceBox: {
     maxWidth: 150,
-    minWidth: 118,
+    minWidth: 106,
     borderRadius: 8,
     backgroundColor: "#EFF6FF",
     borderWidth: 1,
     borderColor: "#DBEAFE",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: "flex-end",
   },
   priceLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     color: "#64748B",
     textTransform: "uppercase",
   },
   priceAmount: {
-    marginTop: 5,
-    fontSize: 17,
+    marginTop: 4,
+    fontSize: 15,
     fontWeight: "800",
     color: "#1D4ED8",
   },
   detailGrid: {
-    marginTop: 14,
+    marginTop: 10,
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
   },
   detailItem: {
     flex: 1,
@@ -208,14 +211,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
     borderWidth: 1,
     borderColor: "#EEF2F7",
-    padding: 10,
+    padding: 8,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
   detailIcon: {
-    width: 30,
-    height: 30,
+    width: 26,
+    height: 26,
     borderRadius: 8,
     backgroundColor: "#DBEAFE",
     alignItems: "center",
@@ -227,35 +230,35 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
     textTransform: "uppercase",
   },
   detailValue: {
-    marginTop: 3,
+    marginTop: 2,
     color: "#334155",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   notesBox: {
-    marginTop: 12,
+    marginTop: 9,
     borderRadius: 8,
     backgroundColor: "#F8FAFC",
     borderWidth: 1,
     borderColor: "#EEF2F7",
-    padding: 12,
+    padding: 10,
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 8,
   },
   notes: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     color: "#475569",
   },
   bottomRow: {
-    marginTop: 14,
+    marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -268,7 +271,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   metaText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     color: "#94A3B8",
   },
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   openHintText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     color: "#2563EB",
   },

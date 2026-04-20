@@ -47,12 +47,7 @@ export default function RequestDetailsScreen({ navigation, route }) {
 
   const currentUserId = profile?.id || profile?.uid || null;
 
-  const requestAuthorId =
-    request?.authorId ||
-    request?.createdById ||
-    request?.userId ||
-    request?.requestedById ||
-    null;
+  const requestAuthorId = request?.authorId || null;
 
   const isCreator =
     requestAuthorId && currentUserId
@@ -258,7 +253,7 @@ export default function RequestDetailsScreen({ navigation, route }) {
           itemName={request.itemName || "Untitled Request"}
           category={request.category || "General"}
           status={request.status || "pending"}
-          urgency={request.urgency || request.priority || "normal"}
+          urgency={request.urgency || "normal"}
           campus={request.campus || "-"}
           shift={request.shift || "-"}
         />
@@ -270,7 +265,7 @@ export default function RequestDetailsScreen({ navigation, route }) {
             request.estimatedBudget || request.budget || 0,
           )}
           neededBy={formatDate(toDateTimeValue(request.neededBy))}
-          reason={request.reason || request.description || "-"}
+          reason={request.reason || "-"}
           createdAt={formatDateTime(toDateTimeValue(request.createdAt))}
         />
 

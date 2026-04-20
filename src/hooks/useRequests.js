@@ -83,6 +83,7 @@ export default function useRequests(autoLoad = true, options = {}) {
             user?.displayName ||
             user?.email ||
             "Unknown User",
+          authorEmail: payload.authorEmail || profile?.email || user?.email || "",
           campus: payload.campus || profile?.campus || null,
           status: payload.status || "pending",
         };

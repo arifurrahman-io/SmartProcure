@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android:debug": "cd android && gradlew.bat assembleDebug",
+    "build:android:release": "set NODE_ENV=production&& cd android && gradlew.bat assembleRelease",
+    "install:android:debug": "cd android && gradlew.bat installDebug"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

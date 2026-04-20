@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet, Text } from "react-native";
-import { Colors } from "../../constants/colors";
+import useAppTheme from "../../hooks/useAppTheme";
 
 export default function AppInput({
   label,
@@ -12,9 +12,15 @@ export default function AppInput({
   autoCapitalize = "sentences",
   autoCorrect = true,
 }) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.wrapper}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        <Text style={[styles.label, { color: theme.colors.text }]}>
+          {label}
+        </Text>
+      ) : null}
 
       <TextInput
         value={value}
@@ -25,7 +31,15 @@ export default function AppInput({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoCorrect={autoCorrect}
-        style={[styles.input, multiline && styles.multiline]}
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.colors.card,
+            borderColor: theme.colors.border,
+            color: theme.colors.text,
+          },
+          multiline && styles.multiline,
+        ]}
         placeholderTextColor="#94A3B8"
       />
     </View>
@@ -40,16 +54,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 13,
     fontWeight: "800",
-    color: Colors.text,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#E2E8F0",
     paddingHorizontal: 14,
     paddingVertical: 13,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    color: "#0F172A",
     fontSize: 15,
   },
   multiline: {

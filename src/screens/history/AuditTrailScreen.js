@@ -15,7 +15,7 @@ const normalizeTimeline = (items = []) => {
   return items
     .map((item) => ({
       title: item.title || item.action || "Activity Updated",
-      description: item.description || item.note || "",
+      description: item.description || "",
       time: formatDateTime(item.time || item.createdAt || item.updatedAt),
     }))
     .filter((item) => item.title);

@@ -20,7 +20,7 @@ import ROUTES from "../../navigation/routes";
 import useRequests from "../../hooks/useRequests";
 import useDebounce from "../../hooks/useDebounce";
 import { filterRequests, getRequestAuthor } from "../../utils/requestHelpers";
-import { formatDate } from "../../utils/formatDate";
+import { formatDateTime } from "../../utils/formatDate";
 
 const STATUS_FILTERS = [
   "All",
@@ -64,9 +64,9 @@ export default function RequestListScreen({ navigation }) {
         campus: item.campus || "-",
         shift: item.shift || "-",
         requester: author.name || "Unknown",
-        date: formatDate(item.createdAt),
+        createdAt: formatDateTime(item.createdAt),
         status: item.status || "Pending",
-        urgency: item.urgency || item.priority || "Medium",
+        urgency: item.urgency || "Medium",
         quotationCount: item.quotationCount || 0,
         rawStatus: item.status || "Pending",
       };

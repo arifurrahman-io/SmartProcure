@@ -1,5 +1,6 @@
 import { Platform, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import useAppTheme from "../../hooks/useAppTheme";
 
 export default function ProfileMenuItem({
   title,
@@ -9,9 +10,17 @@ export default function ProfileMenuItem({
   rightText,
   danger = false,
 }) {
+  const { theme } = useAppTheme();
+
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.colors.card,
+          borderColor: theme.colors.border,
+        },
+      ]}
       activeOpacity={0.85}
       onPress={onPress}
     >
@@ -25,12 +34,21 @@ export default function ProfileMenuItem({
         </View>
 
         <View style={styles.textWrap}>
-          <Text style={[styles.title, danger && styles.dangerText]}>
+          <Text
+            style={[
+              styles.title,
+              { color: theme.colors.text },
+              danger && styles.dangerText,
+            ]}
+          >
             {title}
           </Text>
 
           {subtitle ? (
-            <Text style={styles.subtitle} numberOfLines={1}>
+            <Text
+              style={[styles.subtitle, { color: theme.colors.textSecondary }]}
+              numberOfLines={1}
+            >
               {subtitle}
             </Text>
           ) : null}
@@ -38,7 +56,9 @@ export default function ProfileMenuItem({
       </View>
 
       {rightText ? (
-        <Text style={styles.rightText}>{rightText}</Text>
+        <Text style={[styles.rightText, { color: theme.colors.textSecondary }]}>
+          {rightText}
+        </Text>
       ) : (
         <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
       )}
@@ -48,24 +68,22 @@ export default function ProfileMenuItem({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    padding: 14,
-    marginBottom: 10,
+    padding: 12,
+    marginBottom: 9,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     ...Platform.select({
       web: {
-        boxShadow: "0 8px 22px rgba(15, 23, 42, 0.04)",
+        boxShadow: "0 6px 18px rgba(15, 23, 42, 0.04)",
       },
       default: {
         shadowColor: "#000",
-        shadowOpacity: 0.03,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.025,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
         elevation: 1,
       },
     }),
@@ -76,13 +94,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrap: {
-    width: 38,
-    height: 38,
+    width: 34,
+    height: 34,
     borderRadius: 8,
     backgroundColor: "#EEF4FF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 10,
   },
   dangerBg: {
     backgroundColor: "#FEF2F2",
@@ -91,18 +109,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
     color: "#0F172A",
   },
   subtitle: {
-    marginTop: 4,
-    fontSize: 12,
+    marginTop: 3,
+    fontSize: 11,
     color: "#64748B",
   },
   rightText: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "800",
     color: "#64748B",
   },
   dangerText: {

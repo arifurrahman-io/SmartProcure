@@ -10,7 +10,7 @@ import RequestCard from "../../components/request/RequestCard";
 import ROUTES from "../../navigation/routes";
 import useAuth from "../../hooks/useAuth";
 import useRequests from "../../hooks/useRequests";
-import { formatDate } from "../../utils/formatDate";
+import { formatDateTime } from "../../utils/formatDate";
 import { getRequestAuthor } from "../../utils/requestHelpers";
 
 export default function MyRequestsScreen({ navigation }) {
@@ -49,7 +49,7 @@ export default function MyRequestsScreen({ navigation }) {
           campus: item.campus || "-",
           shift: item.shift || "-",
           requester: author.name,
-          date: formatDate(item.createdAt),
+          createdAt: formatDateTime(item.createdAt),
           status: item.status || "Pending",
           urgency: item.urgency || "Medium",
           quotationCount: item.quotationCount || 0,

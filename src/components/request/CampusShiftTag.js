@@ -4,7 +4,7 @@ export default function CampusShiftTag({ campus, shift }) {
   return (
     <View style={styles.tag}>
       <Text style={styles.text}>
-        {campus} • {shift}
+        {campus} - {shift}
       </Text>
     </View>
   );
@@ -13,14 +13,14 @@ export default function CampusShiftTag({ campus, shift }) {
 const styles = StyleSheet.create({
   tag: {
     backgroundColor: "#EEF4FF",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 8,
     alignSelf: "flex-start",
   },
   text: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 11,
+    fontWeight: "800",
     color: "#1D4ED8",
   },
 });

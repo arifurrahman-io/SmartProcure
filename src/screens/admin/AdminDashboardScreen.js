@@ -20,6 +20,8 @@ import useDashboardStats from "../../hooks/useDashboardStats";
 import useRequests from "../../hooks/useRequests";
 import useUserRole from "../../hooks/useUserRole";
 import { isPendingApprovalStatus } from "../../constants/requestStatus";
+import { formatDateTime } from "../../utils/formatDate";
+import { getRequestAuthor } from "../../utils/requestHelpers";
 
 export default function AdminDashboardScreen({ navigation }) {
   const { isAdmin } = useUserRole();
@@ -43,13 +45,19 @@ export default function AdminDashboardScreen({ navigation }) {
     return (requests || [])
       .filter((item) => isPendingApprovalStatus(item.status))
       .slice(0, 5)
-      .map((item) => ({
-        id: item.id,
-        itemName: item.itemName || item.title || "Untitled Request",
-        campus: item.campus || "-",
-        shift: item.shift || "-",
-        quotationCount: item.quotationCount || 0,
-      }));
+      .map((item) => {
+        const author = getRequestAuthor(item) || {};
+
+        return {
+          id: item.id,
+          itemName: item.itemName || item.title || "Untitled Request",
+          campus: item.campus || "-",
+          shift: item.shift || "-",
+          requester: author.name || "Unknown",
+          createdAt: formatDateTime(item.createdAt),
+          quotationCount: item.quotationCount || 0,
+        };
+      });
   }, [requests]);
 
   const handleRefresh = async () => {
@@ -158,10 +166,13 @@ export default function AdminDashboardScreen({ navigation }) {
               itemName={item.itemName}
               campus={item.campus}
               shift={item.shift}
+              requester={item.requester}
+              createdAt={item.createdAt}
               quotationCount={item.quotationCount}
               onPress={() =>
-                navigation.navigate(ROUTES.REQUEST_DETAILS, {
-                  requestId: item.id,
+                navigation.navigate(ROUTES.REQUESTS, {
+                  screen: ROUTES.REQUEST_DETAILS,
+                  params: { requestId: item.id },
                 })
               }
             />

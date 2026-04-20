@@ -36,18 +36,16 @@ export default function InstructionDetailsScreen({ navigation, route }) {
       itemName:
         instruction.itemName || instruction.title || "Untitled Instruction",
       vendorName: instruction.vendorName || "Unknown Vendor",
-      vendorContact:
-        instruction.vendorContact || instruction.vendorPhone || "-",
-      specification:
-        instruction.specification || instruction.description || "-",
-      address: instruction.address || instruction.vendorAddress || "",
+      vendorContact: instruction.vendorContact || "-",
+      specification: instruction.specification || "-",
+      notes: instruction.notes || "",
       amount: formatCurrency(instruction.amount || 0),
       campus: instruction.campus || "-",
       shift: instruction.shift || "-",
       approvedBy: instruction.approvedBy || "Admin",
       approvedAt: formatDate(instruction.approvedAt || instruction.createdAt),
       status: instruction.status || "Approved",
-      note: instruction.completionNote || instruction.note || "-",
+      note: instruction.completionNote || "-",
     };
   }, [instruction]);
 
@@ -123,7 +121,8 @@ export default function InstructionDetailsScreen({ navigation, route }) {
           vendorName={mappedInstruction.vendorName}
           vendorContact={mappedInstruction.vendorContact}
           specification={mappedInstruction.specification}
-          address={mappedInstruction.address}
+          amount={mappedInstruction.amount}
+          notes={mappedInstruction.notes}
         />
 
         <View style={styles.noteCard}>

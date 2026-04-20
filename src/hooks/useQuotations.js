@@ -11,6 +11,7 @@ import {
 } from "../services/firebase/requestService";
 import { createInstruction } from "../services/firebase/instructionService";
 import useAuthStore from "../store/useAuthStore";
+import { isAdminRole } from "../utils/roleHelpers";
 
 const INITIAL_STATE = {
   quotations: [],
@@ -126,6 +127,12 @@ export default function useQuotations(requestId, autoLoad = true) {
         return { success: false, error: message };
       }
 
+      if (!isAdminRole(profile?.role)) {
+        const message = "Only admins can approve quotations.";
+        setError(message);
+        return { success: false, error: message };
+      }
+
       try {
         setIsApproving(true);
         setError(null);
@@ -158,19 +165,9 @@ export default function useQuotations(requestId, autoLoad = true) {
             selectedQuotation?.itemName ||
             "Untitled Item",
           vendorName: selectedQuotation?.vendorName || "Unknown Vendor",
-          vendorContact:
-            selectedQuotation?.vendorContact ||
-            selectedQuotation?.vendorPhone ||
-            "",
-          specification:
-            selectedQuotation?.specification ||
-            request?.specification ||
-            request?.description ||
-            "",
-          address:
-            selectedQuotation?.address ||
-            selectedQuotation?.vendorAddress ||
-            "",
+          vendorContact: selectedQuotation?.vendorContact || "",
+          specification: selectedQuotation?.specification || "",
+          notes: selectedQuotation?.notes || "",
           amount: normalizeAmount(selectedQuotation?.amount),
           campus: request?.campus || selectedQuotation?.campus || "",
           shift: request?.shift || selectedQuotation?.shift || "",

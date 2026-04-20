@@ -6,14 +6,9 @@ export const getRequestAuthor = (request = {}, fallbackName = "Unknown") => {
   const source = request || {};
 
   return {
-    id: source.authorId || source.createdBy || source.submittedById || null,
-    name:
-      source.authorName ||
-      source.requesterName ||
-      source.requester ||
-      source.createdByName ||
-      fallbackName,
-    email: source.authorEmail || source.requesterEmail || source.email || "",
+    id: source.authorId || null,
+    name: source.authorName || fallbackName,
+    email: source.authorEmail || "",
   };
 };
 

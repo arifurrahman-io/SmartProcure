@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -11,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import ScreenWrapper from "../../components/common/ScreenWrapper";
 import AppHeader from "../../components/common/AppHeader";
@@ -59,6 +61,42 @@ const buildMemberForm = (user = {}) => ({
   phoneNumber: user.phoneNumber || "",
 });
 
+function UserActionButton({
+  title,
+  icon,
+  variant = "edit",
+  loading = false,
+  onPress,
+}) {
+  const variantStyle = styles[`${variant}UserAction`];
+  const variantTextStyle = styles[`${variant}UserActionText`];
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.userActionButton,
+        variantStyle,
+        loading && styles.userActionButtonDisabled,
+      ]}
+      activeOpacity={0.85}
+      onPress={onPress}
+      disabled={loading}
+    >
+      {loading ? (
+        <ActivityIndicator size="small" color={variantTextStyle.color} />
+      ) : (
+        <Ionicons name={icon} size={15} color={variantTextStyle.color} />
+      )}
+      <Text
+        style={[styles.userActionText, variantTextStyle]}
+        numberOfLines={1}
+      >
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
 function UserCard({
   item,
   currentUserId,
@@ -104,34 +142,38 @@ function UserCard({
         {!isCurrentUser ? (
           <>
             <View style={styles.actionItem}>
-              <AppButton
-                title="Edit Member"
+              <UserActionButton
+                title="Edit member"
+                icon="pencil-outline"
+                variant="edit"
                 onPress={() => onEditUser(item)}
-                style={styles.neutralAction}
               />
             </View>
 
             {isAdmin ? (
               <View style={styles.actionItem}>
-                <AppButton
+                <UserActionButton
                   title={
                     actionLoadingId === `remove-admin-${item.id}`
                       ? "Removing..."
-                      : "Remove Admin"
+                      : "Remove admin"
                   }
+                  icon="person-remove-outline"
+                  variant="admin"
                   onPress={() => onRemoveAdmin(item)}
                   loading={actionLoadingId === `remove-admin-${item.id}`}
-                  style={styles.secondaryAction}
                 />
               </View>
             ) : (
               <View style={styles.actionItem}>
-                <AppButton
+                <UserActionButton
                   title={
                     actionLoadingId === `make-admin-${item.id}`
                       ? "Updating..."
-                      : "Make Admin"
+                      : "Make admin"
                   }
+                  icon="person-add-outline"
+                  variant="admin"
                   onPress={() => onMakeAdmin(item)}
                   loading={actionLoadingId === `make-admin-${item.id}`}
                 />
@@ -140,41 +182,45 @@ function UserCard({
 
             {isDisabled ? (
               <View style={styles.actionItem}>
-                <AppButton
+                <UserActionButton
                   title={
                     actionLoadingId === `enable-${item.id}`
                       ? "Enabling..."
-                      : "Enable User"
+                      : "Enable user"
                   }
+                  icon="person-add-outline"
+                  variant="remove"
                   onPress={() => onEnableUser(item)}
                   loading={actionLoadingId === `enable-${item.id}`}
                 />
               </View>
             ) : (
               <View style={styles.actionItem}>
-                <AppButton
+                <UserActionButton
                   title={
                     actionLoadingId === `disable-${item.id}`
                       ? "Removing..."
-                      : "Remove User"
+                      : "Remove user"
                   }
+                  icon="person-remove-outline"
+                  variant="remove"
                   onPress={() => onDisableUser(item)}
                   loading={actionLoadingId === `disable-${item.id}`}
-                  style={styles.dangerAction}
                 />
               </View>
             )}
 
-            <View style={styles.actionItem}>
-              <AppButton
+            <View style={[styles.actionItem, styles.deleteActionItem]}>
+              <UserActionButton
                 title={
                   actionLoadingId === `delete-${item.id}`
                     ? "Deleting..."
-                    : "Delete Member"
+                    : "Delete member"
                 }
+                icon="trash-outline"
+                variant="delete"
                 onPress={() => onDeleteUser(item)}
                 loading={actionLoadingId === `delete-${item.id}`}
-                style={styles.deleteAction}
               />
             </View>
           </>
@@ -325,9 +371,7 @@ export default function UserManagementScreen({ navigation }) {
       updatedBy: currentUserName,
     };
 
-    const loadingKey = editingUser
-      ? `edit-${editingUser.id}`
-      : "create-member";
+    const loadingKey = editingUser ? `edit-${editingUser.id}` : "create-member";
 
     try {
       setActionLoadingId(loadingKey);
@@ -353,7 +397,9 @@ export default function UserManagementScreen({ navigation }) {
       closeMemberModal();
       Alert.alert(
         "Success",
-        editingUser ? "Member updated successfully." : "Member added successfully.",
+        editingUser
+          ? "Member updated successfully."
+          : "Member added successfully.",
       );
     } catch (err) {
       Alert.alert(
@@ -474,9 +520,7 @@ export default function UserManagementScreen({ navigation }) {
       <View style={styles.headerActions}>
         <AppButton
           title={
-            actionLoadingId === "create-member"
-              ? "Adding..."
-              : "Add Member"
+            actionLoadingId === "create-member" ? "Adding..." : "Add Member"
           }
           onPress={openAddMemberModal}
           loading={actionLoadingId === "create-member"}
@@ -728,17 +772,54 @@ const styles = StyleSheet.create({
     flexBasis: "48%",
     flexGrow: 1,
   },
-  neutralAction: {
-    backgroundColor: "#2563EB",
+  deleteActionItem: {
+    alignSelf: "stretch",
   },
-  secondaryAction: {
-    backgroundColor: "#F59E0B",
+  userActionButton: {
+    minHeight: 45,
+    width: "100%",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
-  dangerAction: {
-    backgroundColor: "#DC2626",
+  userActionButtonDisabled: {
+    opacity: 0.72,
   },
-  deleteAction: {
-    backgroundColor: "#7F1D1D",
+  userActionText: {
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  editUserAction: {
+    backgroundColor: "#EFF7FF",
+    borderColor: "#BFDBFE",
+  },
+  editUserActionText: {
+    color: "#174A7C",
+  },
+  adminUserAction: {
+    backgroundColor: "#F4F1FF",
+    borderColor: "#DDD6FE",
+  },
+  adminUserActionText: {
+    color: "#43308A",
+  },
+  removeUserAction: {
+    backgroundColor: "#E9FFF8",
+    borderColor: "#A7F3D0",
+  },
+  removeUserActionText: {
+    color: "#0F5B4B",
+  },
+  deleteUserAction: {
+    backgroundColor: "#FFF1F1",
+    borderColor: "#FECACA",
+  },
+  deleteUserActionText: {
+    color: "#991B1B",
   },
   selfNote: {
     fontSize: 12,

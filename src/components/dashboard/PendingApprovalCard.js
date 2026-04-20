@@ -6,6 +6,8 @@ export default function PendingApprovalCard({
   itemName,
   campus,
   shift,
+  requester,
+  createdAt,
   quotationCount,
   onPress,
 }) {
@@ -29,7 +31,13 @@ export default function PendingApprovalCard({
             {itemName}
           </Text>
           <Text style={styles.meta}>
-            {campus} • {shift}
+            {campus} - {shift}
+          </Text>
+          <Text style={styles.meta} numberOfLines={1}>
+            Created by {requester || "Unknown"}
+          </Text>
+          <Text style={styles.meta} numberOfLines={1}>
+            Created {createdAt || "-"}
           </Text>
           <Text style={styles.quoteText}>
             {quotationCount} quotation submitted
@@ -46,22 +54,22 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    padding: 14,
-    marginBottom: 12,
+    padding: 12,
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: "#DCE4EE",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     ...Platform.select({
       web: {
-        boxShadow: "0 8px 22px rgba(15, 23, 42, 0.04)",
+        boxShadow: "0 6px 18px rgba(15, 23, 42, 0.04)",
       },
       default: {
         shadowColor: "#000",
-        shadowOpacity: 0.03,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.025,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
         elevation: 1,
       },
     }),
@@ -72,31 +80,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrap: {
-    width: 42,
-    height: 42,
+    width: 36,
+    height: 36,
     borderRadius: 8,
     backgroundColor: "#EEF4FF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 10,
   },
   content: {
     flex: 1,
   },
   itemName: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
     color: "#0F172A",
   },
   meta: {
-    marginTop: 4,
-    fontSize: 12,
+    marginTop: 3,
+    fontSize: 11,
     color: "#64748B",
   },
   quoteText: {
-    marginTop: 4,
-    fontSize: 12,
-    fontWeight: "600",
+    marginTop: 5,
+    fontSize: 11,
+    fontWeight: "800",
     color: "#2563EB",
   },
 });

@@ -9,7 +9,7 @@ import QuotationCard from "../../components/quotation/QuotationCard";
 
 import ROUTES from "../../navigation/routes";
 import useQuotations from "../../hooks/useQuotations";
-import { formatDate } from "../../utils/formatDate";
+import { formatDateTime } from "../../utils/formatDate";
 import { formatCurrency } from "../../utils/formatCurrency";
 
 export default function QuotationListScreen({ navigation, route }) {
@@ -29,7 +29,7 @@ export default function QuotationListScreen({ navigation, route }) {
       warranty: item.warranty || "-",
       notes: item.notes || "",
       submittedBy: item.submittedBy || "Unknown",
-      submittedAt: formatDate(item.createdAt || item.submittedAt),
+      createdAt: formatDateTime(item.createdAt),
       isApproved: !!item.isApproved,
     }));
   }, [quotations]);

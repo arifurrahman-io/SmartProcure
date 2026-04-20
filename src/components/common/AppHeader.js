@@ -1,20 +1,31 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../../constants/colors";
+import useAppTheme from "../../hooks/useAppTheme";
 
 export default function AppHeader({ title, onBack }) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.container}>
       {onBack && (
         <TouchableOpacity
-          style={styles.backButton}
+          style={[
+            styles.backButton,
+            {
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+            },
+          ]}
           onPress={onBack}
           activeOpacity={0.85}
         >
-          <Ionicons name="arrow-back" size={20} color={Colors.text} />
+          <Ionicons name="arrow-back" size={20} color={theme.colors.text} />
         </TouchableOpacity>
       )}
-      <Text style={styles.title} numberOfLines={1}>
+      <Text
+        style={[styles.title, { color: theme.colors.text }]}
+        numberOfLines={1}
+      >
         {title}
       </Text>
     </View>
@@ -33,8 +44,6 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },

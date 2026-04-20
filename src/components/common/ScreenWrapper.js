@@ -1,10 +1,14 @@
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "../../constants/colors";
+import useAppTheme from "../../hooks/useAppTheme";
 
 export default function ScreenWrapper({ children }) {
+  const { theme } = useAppTheme();
+
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.container}>{children}</View>
     </SafeAreaView>
   );
@@ -13,7 +17,6 @@ export default function ScreenWrapper({ children }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   container: {
     flex: 1,
